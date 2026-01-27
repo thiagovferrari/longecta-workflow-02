@@ -107,13 +107,13 @@ const DemandRow: React.FC<{
       <td className="px-6 py-5">
         <div className="flex items-center gap-3">
           <div className={`w-1.5 h-1.5 rounded-full bg-current ${textColorClass}`} />
-          <span className={`font-bold text-sm truncate ${textColorClass}`}>
+          <span className={`font-bold text-base truncate ${textColorClass}`}>
             {demand.title}
           </span>
         </div>
       </td>
       <td className="px-6 py-5">
-        <p className="text-gray-400 text-xs truncate" title={demand.description}>
+        <p className="text-gray-400 text-sm truncate" title={demand.description}>
           {demand.description || <span className="text-gray-700 italic">Sem descrição</span>}
         </p>
       </td>

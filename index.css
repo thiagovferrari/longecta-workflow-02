@@ -19,8 +19,8 @@ body {
   overflow: hidden;
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
+/* Glassmorphism Utilities - Dark Mode */
+[data-theme="dark"] .glass-panel {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -28,11 +28,27 @@ body {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
-.glass-card {
+[data-theme="dark"] .glass-card {
   background: rgba(30, 30, 40, 0.4);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Glassmorphism Utilities - Light Mode */
+[data-theme="light"] .glass-panel {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(100, 100, 150, 0.15);
+  box-shadow: 0 8px 32px rgba(100, 100, 150, 0.08);
+}
+
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(100, 100, 150, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(100, 100, 150, 0.12);
 }
 
 /* Custom Premium Scrollbar */
