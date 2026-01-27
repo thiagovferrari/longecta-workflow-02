@@ -55,20 +55,20 @@ body:not([data-theme]) {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Glassmorphism Utilities - Light Mode */
-[data-theme="light"] .glass-panel {
-  background: rgba(255, 255, 255, 0.45);
+/* Glassmorphism Utilities - Blue Mode */
+[data-theme="blue"] .glass-panel {
+  background: rgba(13, 27, 42, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(100, 100, 150, 0.15);
-  box-shadow: 0 8px 32px rgba(100, 100, 150, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-[data-theme="light"] .glass-card {
-  background: rgba(255, 255, 255, 0.6);
+[data-theme="blue"] .glass-card {
+  background: rgba(26, 35, 50, 0.7);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(100, 100, 150, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(100, 100, 150, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
 /* Custom Premium Scrollbar */
