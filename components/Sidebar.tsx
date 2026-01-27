@@ -12,12 +12,12 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, onLogout }) => {
   return (
-    <aside className="w-20 bg-black/40 border-r border-white/10 flex flex-col items-center py-8 gap-10 backdrop-blur-xl z-20">
-      <div className="w-10 h-10 bg-teal-500/20 border border-teal-500/40 rounded-xl flex items-center justify-center text-[#00f5d4] font-bold text-xs shadow-[0_0_15px_rgba(0,245,212,0.2)]">
+    <aside className="w-24 border-r border-white/5 flex flex-col items-center py-8 gap-10 z-20 glass-panel h-full">
+      <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-white/10 rounded-2xl flex items-center justify-center text-white font-bold text-xs shadow-[0_0_20px_rgba(0,245,212,0.1)] backdrop-blur-md">
         LON
       </div>
 
-      <nav className="flex flex-col gap-6">
+      <nav className="flex flex-col gap-8 w-full px-4">
         <SidebarIcon
           icon={<ClipboardList size={22} />}
           active={activeTab === 'active'}
@@ -29,28 +29,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
           icon={<CheckCircle2 size={22} />}
           active={activeTab === 'completed'}
           onClick={() => onTabChange('completed')}
-          title="Arquivo Concluído"
+          title="Concluídas"
         />
-        <div className="w-8 h-px bg-white/10 mx-auto my-2" />
+
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+
         <SidebarIcon
           icon={<ImageIcon size={22} />}
           active={activeTab === 'projects'}
           onClick={() => onTabChange('projects')}
-          title="Projetos da Equipe"
+          title="Projetos"
         />
       </nav>
 
-      <div className="mt-auto flex flex-col gap-6 items-center">
+      <div className="mt-auto flex flex-col gap-6 items-center w-full px-4">
         <button
           onClick={onLogout}
           title="Sair do Sistema"
-          className="p-3 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20 group"
+          className="p-3 rounded-2xl text-gray-400 hover:text-white hover:bg-white/5 transition-all border border-transparent hover:border-white/10 group w-full flex justify-center"
         >
           <LogOut size={20} />
         </button>
         <div
           title={user?.email}
-          className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-700 border border-white/20 shadow-lg flex items-center justify-center font-bold text-white text-xs cursor-pointer hover:scale-105 transition-transform"
+          className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 border-2 border-white/20 shadow-lg flex items-center justify-center font-bold text-white text-xs cursor-pointer hover:scale-110 transition-transform"
         >
           {user?.email?.[0].toUpperCase()}
         </div>
@@ -69,13 +71,16 @@ interface SidebarIconProps {
 const SidebarIcon: React.FC<SidebarIconProps> = ({ icon, active, onClick, title }) => (
   <button
     onClick={onClick}
-    className={`p-3 rounded-xl transition-all duration-300 relative group ${active
-      ? 'bg-teal-500/20 text-[#00f5d4] shadow-[0_0_20px_rgba(0,245,212,0.15)] border border-teal-500/30'
-      : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+    className={`p-3.5 rounded-2xl transition-all duration-500 relative group w-full flex justify-center ${active
+      ? 'bg-white/10 text-white shadow-[0_0_30px_rgba(255,255,255,0.15)] border border-white/20'
+      : 'text-gray-500 hover:text-white hover:bg-white/5 border border-transparent'
       }`}
   >
     {icon}
-    <span className="absolute left-full ml-4 px-2 py-1 bg-gray-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity border border-white/10 uppercase tracking-widest font-bold">
+    {active && (
+      <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50" />
+    )}
+    <span className="absolute left-full ml-4 px-3 py-1.5 bg-black/80 backdrop-blur-xl text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-all border border-white/10 uppercase tracking-widest font-bold translate-x-[-10px] group-hover:translate-x-0 shadow-xl">
       {title}
     </span>
   </button>

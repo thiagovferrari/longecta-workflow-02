@@ -12,13 +12,13 @@ interface DemandListProps {
   onEdit: (demand: Demand) => void;
 }
 
-export const DemandList: React.FC<DemandListProps> = ({ 
-  demands, 
-  viewType, 
-  onNewDemand, 
-  onDelete, 
-  onComplete, 
-  onEdit 
+export const DemandList: React.FC<DemandListProps> = ({
+  demands,
+  viewType,
+  onNewDemand,
+  onDelete,
+  onComplete,
+  onEdit
 }) => {
   return (
     <div className="max-w-6xl w-full mx-auto">
@@ -31,9 +31,9 @@ export const DemandList: React.FC<DemandListProps> = ({
             <span className="text-teal-400 text-sm font-bold">{demands.length}</span>
           </div>
         </div>
-        
+
         {viewType === 'active' && (
-          <button 
+          <button
             onClick={onNewDemand}
             className="flex items-center gap-2 px-6 py-2.5 bg-[#00f5d4] hover:bg-[#00d1b5] text-[#020f10] rounded-xl text-xs font-bold tracking-wider transition-all shadow-[0_4px_15px_rgba(0,245,212,0.4)] active:scale-95"
           >
@@ -43,23 +43,23 @@ export const DemandList: React.FC<DemandListProps> = ({
         )}
       </div>
 
-      <div className="bg-black/40 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl shadow-2xl">
+      <div className="glass-panel rounded-3xl overflow-hidden backdrop-blur-xl">
         {demands.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse table-fixed">
-              <thead className="bg-white/5 text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] border-b border-white/10">
+              <thead className="bg-white/5 text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] border-b border-white/5">
                 <tr>
-                  <th className="px-6 py-5 w-[25%]">Título da Demanda</th>
-                  <th className="px-6 py-5 w-[40%]">Detalhes / Conteúdo</th>
-                  <th className="px-6 py-5 w-[15%] text-center">Data Limite</th>
-                  <th className="px-6 py-5 w-[20%] text-right">Controle</th>
+                  <th className="px-8 py-6 w-[25%]">Título da Demanda</th>
+                  <th className="px-6 py-6 w-[40%]">Detalhes / Conteúdo</th>
+                  <th className="px-6 py-6 w-[15%] text-center">Data Limite</th>
+                  <th className="px-6 py-6 w-[20%] text-right">Controle</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {demands.map((demand) => (
-                  <DemandRow 
-                    key={demand.id} 
-                    demand={demand} 
+                  <DemandRow
+                    key={demand.id}
+                    demand={demand}
                     viewType={viewType}
                     onDelete={() => onDelete(demand.id)}
                     onComplete={() => onComplete(demand.id)}
@@ -71,10 +71,10 @@ export const DemandList: React.FC<DemandListProps> = ({
           </div>
         ) : (
           <div className="py-24 flex flex-col items-center justify-center text-gray-500 gap-4">
-            <div className="w-12 h-12 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center">
-               <ClipboardList size={20} />
+            <div className="w-16 h-16 rounded-full border border-white/10 bg-white/5 flex items-center justify-center shadow-inner">
+              <ClipboardList size={24} className="opacity-50" />
             </div>
-            <p className="text-sm font-medium italic">Nada por aqui no momento.</p>
+            <p className="text-sm font-medium tracking-wide opacity-50">NADA POR AQUI</p>
           </div>
         )}
       </div>
@@ -82,17 +82,17 @@ export const DemandList: React.FC<DemandListProps> = ({
   );
 };
 
-const DemandRow: React.FC<{ 
-  demand: Demand; 
+const DemandRow: React.FC<{
+  demand: Demand;
   viewType: ViewType;
   onDelete: () => void;
   onComplete: () => void;
   onEdit: () => void;
 }> = ({ demand, viewType, onDelete, onComplete, onEdit }) => {
-  
+
   const getUrgencyColor = () => {
     if (demand.state === 'completed') return 'text-teal-400';
-    
+
     const today = new Date().toLocaleDateString('en-CA');
     if (demand.due_date === today) return 'text-[#00f5d4]';
     if (demand.due_date < today) return 'text-red-500';
@@ -141,10 +141,10 @@ const DemandRow: React.FC<{
 };
 
 const ActionButton: React.FC<{ icon: React.ReactNode, color: string, onClick: () => void, title: string }> = ({ icon, color, onClick, title }) => (
-  <button 
+  <button
     onClick={(e) => {
-        e.stopPropagation();
-        onClick();
+      e.stopPropagation();
+      onClick();
     }}
     title={title}
     className={`p-2 rounded-lg bg-black/60 border ${color.split(' ')[1]} ${color.split(' ')[0]} hover:bg-white/[0.1] transition-all transform active:scale-90 shadow-lg`}

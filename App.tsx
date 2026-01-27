@@ -245,7 +245,7 @@ const App: React.FC = () => {
   if (!session) return <LoginPage onLogin={(s) => setSession(s)} />;
 
   return (
-    <div className="flex h-screen text-gray-200 overflow-hidden bg-[#020f10]">
+    <div className="flex h-screen text-gray-200 overflow-hidden bg-transparent">
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}

@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onlineUsers }) => {
   return (
-    <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 backdrop-blur-md bg-black/20">
+    <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 backdrop-blur-xl bg-transparent z-10">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-sm shadow-[0_0_15px_rgba(255,255,255,0.2)]">
           L
@@ -17,11 +17,11 @@ export const Header: React.FC<HeaderProps> = ({ onlineUsers }) => {
           <span className="font-bold text-white">Longecta</span> <span className="text-gray-500">2026</span>
         </h1>
       </div>
-      
+
       <div className="flex items-center gap-6">
         <div className="flex -space-x-2 overflow-hidden">
           {onlineUsers.slice(0, 5).map((user) => (
-            <div 
+            <div
               key={user.user_id}
               title={user.email}
               className="inline-block h-8 w-8 rounded-full ring-2 ring-[#020f10] bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-[10px] font-bold text-teal-400"
