@@ -72,7 +72,7 @@ const ProjectCard: React.FC<{
     const month = dateObj.toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
 
     return (
-        <div className="group relative bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden hover:border-purple-500/50 transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col h-[260px] w-full">
+        <div className="group relative glass-card rounded-xl overflow-hidden hover:border-purple-500/50 transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col h-[260px] w-full">
             {/* Imagem de Capa */}
             <div className="h-[140px] w-full bg-gray-900 relative overflow-hidden">
                 {project.image_url ? (
@@ -91,7 +91,7 @@ const ProjectCard: React.FC<{
                 <div className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${statusColors[project.status].split(' ')[0]} shadow-[0_0_8px_currentColor]`} title={project.status} />
 
                 {/* Prominent Date Badge */}
-                <div className="absolute bottom-0 left-2 translate-y-1/3 bg-[#0a0a0a] border border-white/10 rounded-lg p-1.5 flex flex-col items-center justify-center shadow-lg z-10 w-12 group-hover:border-purple-500/50 transition-colors">
+                <div className="absolute bottom-0 left-2 translate-y-1/3 glass-panel rounded-lg p-1.5 flex flex-col items-center justify-center shadow-lg z-10 w-12 group-hover:border-purple-500/50 transition-colors">
                     <span className="text-md font-bold text-white leading-none">{day}</span>
                     <span className="text-[9px] font-bold text-gray-400 uppercase leading-none mt-0.5">{month}</span>
                 </div>
