@@ -1,20 +1,53 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Longecta Workflow 02
 
-# Run and deploy your AI Studio app
+Um sistema de gerenciamento de demandas em tempo real, focado em produtividade e colaboração de equipe.
 
-This contains everything you need to run your app locally.
+## 🚀 Funcionalidades
 
-View your app in AI Studio: https://ai.studio/apps/drive/1dIKyEFZyN-We15vCfmTPe0JOQc9hniKG
+- **Fluxo de Demandas**: Kanban/Lista interativa para gerenciar tarefas.
+- **Tempo Real**: Veja as alterações dos colegas instantaneamente (Supabase Realtime).
+- **Colaboração**: Cursor e presença online de outros membros da equipe.
+- **Segurança**: Login com e-mail e senha, com dados protegidos.
 
-## Run Locally
+## 🛠️ Tecnologias
 
-**Prerequisites:**  Node.js
+- **Frontend**: React, Vite, TailwindCSS
+- **Backend**: Supabase (PostgreSQL, Auth, Realtime)
+- **Deploy**: Vercel (Recomendado)
 
+## 📦 Como Rodar Localmente
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. Clone o repositório:
+```bash
+git clone https://github.com/thiagovferrari/longecta-workflow-02.git
+cd longecta-workflow-02
+```
+
+2. Instale as dependências:
+```bash
+npm install
+```
+
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env` na raiz com:
+```env
+VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+```
+
+4. Rode o servidor:
+```bash
+npm run dev
+```
+
+## 🔐 Acesso ao Sistema
+
+O sistema permite **Auto-Cadastro**.
+1. Na tela de login, clique em **"Primeiro acesso? Cadastrar"**.
+2. Insira seu e-mail e senha.
+3. Você será logado automaticamente e poderá ver as demandas da equipe.
+
+## ☁️ Deploy
+
+Este projeto está pronto para ser implantado na Vercel.
+Basta conectar o repositório GitHub à Vercel e adicionar as variáveis de ambiente.
