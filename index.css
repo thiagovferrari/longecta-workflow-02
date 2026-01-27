@@ -25,18 +25,18 @@ body:not([data-theme]) {
   color: #e5e7eb;
 }
 
-/* Light Mode */
-[data-theme="light"] body {
+/* Blue Mode - Navy/Deep Blue inspirado na imagem */
+[data-theme="blue"] body {
   background:
     linear-gradient(135deg,
-      rgba(230, 230, 250, 0.9) 0%,
-      rgba(220, 215, 245, 0.85) 25%,
-      rgba(240, 230, 250, 0.9) 50%,
-      rgba(255, 240, 245, 0.85) 75%,
-      rgba(245, 235, 255, 0.9) 100%),
-    url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-  background-color: #f5f5ff;
-  color: #1e1e2e;
+      rgba(10, 22, 40, 0.95) 0%,
+      rgba(15, 31, 61, 0.9) 25%,
+      rgba(13, 27, 42, 0.95) 50%,
+      rgba(18, 35, 58, 0.9) 75%,
+      rgba(11, 25, 45, 0.95) 100%),
+    url('https://images.unsplash.com/photo-1519681393798-3828fb4090bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+  background-color: #0a1628;
+  color: #e5e7eb;
 }
 
 /* Glassmorphism Utilities - Dark Mode */
