@@ -37,25 +37,25 @@ export const NewDemandModal: React.FC<NewDemandModalProps> = ({ onClose, onSubmi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
-      <div className="bg-[#041c1c] border border-[#1a3a3a] rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in duration-300">
-        <div className="flex items-center justify-between p-8 border-b border-[#1a2e2e]">
+      <div className="glass-card border rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+        <div className="flex items-center justify-between p-8 border-b border-cyan-500/20">
           <div>
             <h3 className="text-2xl font-bold text-white">
               {initialData ? 'Editar Fluxo' : 'Nova Demanda'}
             </h3>
-            <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-medium">Longecta Workflow 2026</p>
+            <p className="text-xs text-cyan-400/70 mt-1 uppercase tracking-widest font-medium">Longecta Workflow 2026</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-all">
+          <button onClick={onClose} className="p-2 hover:bg-cyan-500/10 rounded-full text-gray-400 hover:text-cyan-400 transition-all">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-teal-500 uppercase tracking-widest ml-1">O que precisa ser feito?</label>
+            <label className="block text-[10px] font-bold text-cyan-400 uppercase tracking-widest ml-1">O que precisa ser feito?</label>
             <input
               autoFocus
-              className="w-full bg-[#020f10] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-all placeholder:text-gray-800 font-medium"
+              className="w-full bg-black/40 border border-cyan-500/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 transition-all placeholder:text-gray-500 font-medium"
               placeholder="Ex: Revisão de Contratos Internacionais"
               value={formData.title}
               onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
@@ -64,10 +64,10 @@ export const NewDemandModal: React.FC<NewDemandModalProps> = ({ onClose, onSubmi
           </div>
 
           <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-teal-500 uppercase tracking-widest ml-1">Detalhes Adicionais</label>
+            <label className="block text-[10px] font-bold text-cyan-400 uppercase tracking-widest ml-1">Detalhes Adicionais</label>
             <textarea
               rows={3}
-              className="w-full bg-[#020f10] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-all resize-none placeholder:text-gray-800 text-sm leading-relaxed"
+              className="w-full bg-black/40 border border-cyan-500/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 transition-all resize-none placeholder:text-gray-500 text-sm leading-relaxed"
               placeholder="Liste os passos, links ou observações importantes..."
               value={formData.description}
               onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -75,16 +75,16 @@ export const NewDemandModal: React.FC<NewDemandModalProps> = ({ onClose, onSubmi
           </div>
 
           <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-teal-500 uppercase tracking-widest ml-1">Prazo de Entrega</label>
+            <label className="block text-[10px] font-bold text-cyan-400 uppercase tracking-widest ml-1">Prazo de Entrega</label>
             <div className="relative group">
               <div
-                className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-600 group-focus-within:text-teal-400"
+                className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-500 group-focus-within:text-cyan-400"
               >
                 <Calendar size={18} />
               </div>
               <input
                 type="date"
-                className="w-full bg-[#020f10] border border-white/5 rounded-2xl py-4 pl-14 pr-5 text-white focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-all font-mono text-sm [color-scheme:dark]"
+                className="w-full bg-black/40 border border-cyan-500/30 rounded-2xl py-4 pl-14 pr-5 text-white focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 transition-all font-mono text-sm [color-scheme:dark]"
                 value={formData.due_date}
                 onChange={e => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
                 onClick={(e) => (e.target as HTMLInputElement).showPicker && (e.target as HTMLInputElement).showPicker()}
@@ -95,7 +95,7 @@ export const NewDemandModal: React.FC<NewDemandModalProps> = ({ onClose, onSubmi
           <div className="pt-6">
             <button
               type="submit"
-              className="w-full bg-[#00f5d4] text-[#020f10] font-bold py-5 rounded-2xl hover:bg-[#00d1b5] transition-all shadow-[0_10px_30px_rgba(0,245,212,0.2)] active:scale-[0.98] uppercase tracking-widest text-xs"
+              className="w-full bg-gradient-to-r from-cyan-500 to-teal-400 text-black font-bold py-5 rounded-2xl hover:from-cyan-400 hover:to-teal-300 transition-all active:scale-[0.98] uppercase tracking-widest text-xs"
             >
               {initialData ? 'SALVAR ALTERAÇÕES' : 'CONFIRMAR REGISTRO'}
             </button>

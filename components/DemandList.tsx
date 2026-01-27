@@ -95,7 +95,7 @@ const DemandRow: React.FC<{
 
     const today = new Date().toLocaleDateString('en-CA');
     if (demand.due_date === today) return 'text-[#00f5d4]';
-    if (demand.due_date < today) return 'text-red-500';
+    if (demand.due_date < today) return 'text-orange-500';
     return 'text-white';
   };
 
@@ -113,12 +113,12 @@ const DemandRow: React.FC<{
         </div>
       </td>
       <td className="px-6 py-5">
-        <p className="text-gray-400 text-sm truncate" title={demand.description}>
+        <p className={`text-base truncate ${textColorClass}`} title={demand.description}>
           {demand.description || <span className="text-gray-700 italic">Sem descrição</span>}
         </p>
       </td>
       <td className="px-6 py-5 text-center">
-        <span className={`text-[11px] font-mono tracking-tighter ${textColorClass} opacity-80`}>{dateFormatted}</span>
+        <span className={`text-base font-mono tracking-tighter ${textColorClass}`}>{dateFormatted}</span>
       </td>
       <td className="px-6 py-5 text-right">
         <div className="flex justify-end gap-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
