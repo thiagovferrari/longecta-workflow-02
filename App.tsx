@@ -298,7 +298,6 @@ const App: React.FC = () => {
           onSubmit={handleAction}
           initialData={editingDemand}
           defaultDate={selectedDate}
-          defaultDate={selectedDate}
         />
       )}
 
