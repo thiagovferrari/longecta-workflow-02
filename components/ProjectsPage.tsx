@@ -32,7 +32,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNewProject, projec
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {projects.length > 0 ? (
                     projects.map(project => (
                         <ProjectCard
@@ -61,84 +61,75 @@ const ProjectCard: React.FC<{
     onEdit: () => void;
 }> = ({ project, onDelete, onEdit }) => {
     const statusColors = {
-        active: 'bg-green-500/10 text-green-400 border-green-500/20',
-        completed: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-        prospect: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+        active: 'bg-green-500 text-green-950 border-green-400',
+        completed: 'bg-blue-500 text-blue-950 border-blue-400',
+        prospect: 'bg-yellow-500 text-yellow-950 border-yellow-400',
     };
 
-    const statusLabels = {
-        active: 'ATIVO',
-        completed: 'CONCLUÍDO',
-        prospect: 'PROSPECTAR',
-    };
+    // Format Date for High Visibility (Day / Month)
+    const dateObj = new Date(project.date + 'T12:00:00');
+    const day = dateObj.getDate();
+    const month = dateObj.toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
 
     return (
-        <div className="group relative bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/30 transition-all hover:shadow-[0_0_30px_rgba(168,85,247,0.1)] flex flex-col h-full">
+        <div className="group relative bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden hover:border-purple-500/50 transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col h-[260px] w-full">
             {/* Imagem de Capa */}
-            <div className="h-48 w-full bg-gray-900 relative overflow-hidden">
+            <div className="h-[140px] w-full bg-gray-900 relative overflow-hidden">
                 {project.image_url ? (
                     <img
                         src={project.image_url}
                         alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                 ) : (
                     <div className="flex items-center justify-center h-full text-gray-700 bg-gray-900/50">
-                        <ImageIcon size={32} />
+                        <ImageIcon size={24} />
                     </div>
                 )}
-                <div className="absolute top-3 right-3">
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md border backdrop-blur-md uppercase tracking-wider ${statusColors[project.status]}`}>
-                        {statusLabels[project.status]}
-                    </span>
+
+                {/* Status Dot */}
+                <div className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${statusColors[project.status].split(' ')[0]} shadow-[0_0_8px_currentColor]`} title={project.status} />
+
+                {/* Prominent Date Badge */}
+                <div className="absolute bottom-0 left-2 translate-y-1/3 bg-[#0a0a0a] border border-white/10 rounded-lg p-1.5 flex flex-col items-center justify-center shadow-lg z-10 w-12 group-hover:border-purple-500/50 transition-colors">
+                    <span className="text-md font-bold text-white leading-none">{day}</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase leading-none mt-0.5">{month}</span>
                 </div>
             </div>
 
-            <div className="p-5 flex flex-col flex-1 gap-4">
-                <div>
-                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-1" title={project.title}>
-                        {project.title}
-                    </h3>
-                    <p className="text-sm text-gray-400 line-clamp-2 min-h-[40px]">
-                        {project.description || <span className="italic opacity-50">Sem descrição</span>}
-                    </p>
-                </div>
+            <div className="pt-5 px-3 pb-3 flex flex-col flex-1 gap-1">
+                <h3 className="text-sm font-bold text-white leading-tight line-clamp-2" title={project.title}>
+                    {project.title}
+                </h3>
 
-                <div className="mt-auto space-y-3 pt-4 border-t border-white/5">
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <Calendar size={14} className="text-purple-400" />
-                        <span>{new Date(project.date + 'T12:00:00').toLocaleDateString()}</span>
-                    </div>
-
-                    {project.website && (
-                        <a
-                            href={project.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-xs text-gray-400 hover:text-purple-400 transition-colors truncate"
-                        >
-                            <LinkIcon size={14} className="text-purple-400" />
-                            <span className="truncate">{project.website}</span>
-                        </a>
-                    )}
-                </div>
+                {project.website && (
+                    <a
+                        href={project.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1 mt-auto truncate"
+                    >
+                        <LinkIcon size={10} />
+                        <span className="truncate">{project.website.replace(/^https?:\/\//, '')}</span>
+                    </a>
+                )}
             </div>
 
             {/* Ações Hover */}
-            <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                     onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                    className="p-2 bg-black/60 backdrop-blur-md rounded-lg text-white hover:bg-white/20 transition-colors"
+                    className="p-1.5 bg-black/60 backdrop-blur-md rounded-md text-white hover:bg-white/20 transition-colors"
                     title="Editar"
                 >
-                    <Edit2 size={14} />
+                    <Edit2 size={12} />
                 </button>
                 <button
                     onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                    className="p-2 bg-black/60 backdrop-blur-md rounded-lg text-red-400 hover:bg-red-500/20 transition-colors"
+                    className="p-1.5 bg-black/60 backdrop-blur-md rounded-md text-red-400 hover:bg-red-500/20 transition-colors"
                     title="Excluir"
                 >
-                    <Trash2 size={14} />
+                    <Trash2 size={12} />
                 </button>
             </div>
         </div>
