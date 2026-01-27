@@ -7,7 +7,8 @@ import { CalendarSidebar } from './components/CalendarSidebar';
 import { NewDemandModal } from './components/NewDemandModal';
 import { LoginPage } from './components/LoginPage';
 import { LiveSession } from './components/LiveSession';
-import { Demand, ViewType, PresenceUser } from './types';
+import { ProjectsPage, NewProjectModal } from './components/ProjectsPage';
+import { Demand, ViewType, PresenceUser, Project } from './types';
 import { supabase, isSupabaseReady } from './lib/supabase';
 
 const STORAGE_KEY = 'longecta_demands_backup';
@@ -20,6 +21,10 @@ const App: React.FC = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : [];
   });
+
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
   const [session, setSession] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<ViewType>('active');
@@ -61,6 +66,7 @@ const App: React.FC = () => {
 
     const setupLive = async () => {
       if (isSupabaseReady) {
+        // 1. Get Workspace
         const { data: membership } = await supabase
           .from('workspace_members')
           .select('workspace_id')
@@ -70,6 +76,7 @@ const App: React.FC = () => {
         const wId = membership?.workspace_id || 'main';
         setWorkspaceId(wId);
 
+        // 2. Load Demands
         const { data } = await supabase
           .from('demands')
           .select('*')
@@ -77,10 +84,20 @@ const App: React.FC = () => {
           .neq('state', 'deleted');
         if (data) setDemands(data);
 
+        // 3. Load Projects
+        const { data: projData } = await supabase
+          .from('projects')
+          .select('*')
+          .neq('status', 'deleted')
+          .order('date', { ascending: true });
+        if (projData) setProjects(projData as any);
+
+        // 4. Setup Realtime Channel
         const channel = supabase.channel(`room-${wId}`, {
           config: { presence: { key: session.user.id } }
         });
 
+        // Listen for Demands Changes
         channel
           .on('postgres_changes', { event: '*', schema: 'public', table: 'demands' }, (payload: any) => {
             if (payload.eventType === 'INSERT') {
@@ -89,6 +106,16 @@ const App: React.FC = () => {
               setDemands(prev => prev.map(d => d.id === payload.new.id ? payload.new : d));
             } else if (payload.eventType === 'DELETE') {
               setDemands(prev => prev.filter(d => d.id !== payload.old.id));
+            }
+          })
+          // Listen for Project Changes
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, (payload: any) => {
+            if (payload.eventType === 'INSERT') {
+              setProjects(prev => [...prev.filter(p => p.id !== payload.new.id), payload.new].sort((a, b) => a.date.localeCompare(b.date)));
+            } else if (payload.eventType === 'UPDATE') {
+              setProjects(prev => prev.map(p => p.id === payload.new.id ? payload.new : p).sort((a, b) => a.date.localeCompare(b.date)));
+            } else if (payload.eventType === 'DELETE') {
+              setProjects(prev => prev.filter(p => p.id !== payload.old.id));
             }
           })
           .on('presence', { event: 'sync' }, () => {
@@ -231,18 +258,31 @@ const App: React.FC = () => {
 
         <main className="flex-1 flex overflow-hidden p-8 gap-8">
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            <DemandList
-              demands={filtered}
-              viewType={activeTab}
-              onNewDemand={() => { setEditingDemand(null); setIsModalOpen(true); }}
-              onDelete={handleDelete}
-              onComplete={handleToggle}
-              onEdit={(d) => { setEditingDemand(d); setIsModalOpen(true); }}
-            />
+            {activeTab !== 'projects' ? (
+              <DemandList
+                demands={filtered}
+                viewType={activeTab}
+                onNewDemand={() => { setEditingDemand(null); setIsModalOpen(true); }}
+                onDelete={handleDelete}
+                onComplete={handleToggle}
+                onEdit={(d) => { setEditingDemand(d); setIsModalOpen(true); }}
+              />
+            ) : (
+              <ProjectsPage
+                projects={projects}
+                onNewProject={() => { setEditingProject(null); setIsProjectModalOpen(true); }}
+                onDelete={async (id) => {
+                  if (!confirm('Excluir projeto?')) return;
+                  if (isSupabaseReady) await supabase.from('projects').delete().eq('id', id);
+                  else setProjects(prev => prev.filter(p => p.id !== id));
+                }}
+                onEdit={(p) => { setEditingProject(p); setIsProjectModalOpen(true); }}
+              />
+            )}
           </div>
 
           <div className="w-[420px] flex-shrink-0 flex flex-col gap-6">
-            <LiveSession channel={channelRef.current} currentUser={session.user} />
+            {/* <LiveSession channel={channelRef.current} currentUser={session.user} /> Removido conforme solicitado */}
             <CalendarSidebar
               demandsByDate={demandsByDate}
               selectedDate={selectedDate}
@@ -258,6 +298,40 @@ const App: React.FC = () => {
           onSubmit={handleAction}
           initialData={editingDemand}
           defaultDate={selectedDate}
+          defaultDate={selectedDate}
+        />
+      )}
+
+      {isProjectModalOpen && (
+        <NewProjectModal
+          onClose={() => { setIsProjectModalOpen(false); setEditingProject(null); }}
+          initialData={editingProject}
+          onSubmit={async (data) => {
+            const id = editingProject?.id || crypto.randomUUID();
+            const now = new Date().toISOString();
+            const fullProject = {
+              ...data,
+              id,
+              created_by: session.user.id,
+              created_at: editingProject?.created_at || now,
+              updated_at: now
+            };
+
+            if (isSupabaseReady) {
+              if (editingProject) {
+                await supabase.from('projects').update(data).eq('id', id);
+              } else {
+                await supabase.from('projects').insert([fullProject]);
+              }
+            } else {
+              setProjects(prev => editingProject
+                ? prev.map(p => p.id === id ? { ...p, ...data } : p)
+                : [...prev, fullProject as Project]
+              );
+            }
+            setIsProjectModalOpen(false);
+            setEditingProject(null);
+          }}
         />
       )}
     </div>

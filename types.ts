@@ -12,7 +12,20 @@ export interface Demand {
   completed_at?: string;
 }
 
-export type ViewType = 'active' | 'completed';
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  website: string;
+  image_url: string;
+  status: 'active' | 'completed' | 'prospect';
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ViewType = 'active' | 'completed' | 'projects';
 
 export interface PresenceUser {
   user_id: string;
