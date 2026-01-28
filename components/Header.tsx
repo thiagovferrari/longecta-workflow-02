@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PresenceUser } from '../types';
 
@@ -8,7 +7,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onlineUsers }) => {
   return (
-    <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 backdrop-blur-xl bg-transparent z-10">
+    <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 backdrop-blur-xl bg-transparent z-10 shrink-0">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-sm shadow-[0_0_15px_rgba(255,255,255,0.2)]">
           L

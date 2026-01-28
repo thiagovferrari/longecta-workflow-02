@@ -12,6 +12,7 @@ import { Demand, ViewType, PresenceUser, Project } from './types';
 import { supabase, isSupabaseReady } from './lib/supabase';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ThemeToggle } from './components/ThemeToggle';
+import { ClipboardList, CheckCircle2, Calendar, X, LogOut, Image as ImageIcon } from 'lucide-react';
 
 const STORAGE_KEY = 'longecta_demands_backup';
 
@@ -36,6 +37,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState<PresenceUser[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayStr());
+  const [searchTerm, setSearchTerm] = useState('');
 
   const channelRef = useRef<any>(null);
 
@@ -226,9 +228,18 @@ const App: React.FC = () => {
   };
 
   const filtered = useMemo(() => {
-    return demands.filter(d => activeTab === 'active' ? d.state === 'active' : d.state === 'completed')
-      .sort((a, b) => a.due_date.localeCompare(b.due_date));
-  }, [demands, activeTab]);
+    let res = demands.filter(d => activeTab === 'active' ? d.state === 'active' : d.state === 'completed');
+
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      res = res.filter(d =>
+        d.title.toLowerCase().includes(lower) ||
+        (d.description && d.description.toLowerCase().includes(lower))
+      );
+    }
+
+    return res.sort((a, b) => a.due_date.localeCompare(b.due_date));
+  }, [demands, activeTab, searchTerm]);
 
   const demandsByDate = useMemo(() => {
     return demands.filter(d => d.state === 'active').reduce((acc, d) => {
@@ -256,36 +267,41 @@ const App: React.FC = () => {
           onLogout={handleLogout}
         />
 
-        <div className="flex-1 flex flex-col min-w-0">
-          <Header onlineUsers={onlineUsers} />
+        <div className="flex-1 flex flex-col min-w-0 h-dvh overflow-hidden relative">
+          <Header
+            onlineUsers={onlineUsers}
+          />
 
-          <main className="flex-1 flex overflow-hidden p-8 gap-8">
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-              {activeTab !== 'projects' ? (
-                <DemandList
-                  demands={filtered}
-                  viewType={activeTab}
-                  onNewDemand={() => { setEditingDemand(null); setIsModalOpen(true); }}
-                  onDelete={handleDelete}
-                  onComplete={handleToggle}
-                  onEdit={(d) => { setEditingDemand(d); setIsModalOpen(true); }}
-                />
-              ) : (
-                <ProjectsPage
-                  projects={projects}
-                  onNewProject={() => { setEditingProject(null); setIsProjectModalOpen(true); }}
-                  onDelete={async (id) => {
-                    if (!confirm('Excluir projeto?')) return;
-                    if (isSupabaseReady) await supabase.from('projects').delete().eq('id', id);
-                    else setProjects(prev => prev.filter(p => p.id !== id));
-                  }}
-                  onEdit={(p) => { setEditingProject(p); setIsProjectModalOpen(true); }}
-                />
-              )}
+          <main className="flex-1 flex overflow-hidden relative">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
+              <div className="max-w-7xl mx-auto w-full">
+                {activeTab !== 'projects' ? (
+                  <DemandList
+                    demands={filtered}
+                    viewType={activeTab}
+                    onNewDemand={() => { setEditingDemand(null); setIsModalOpen(true); }}
+                    onDelete={handleDelete}
+                    onComplete={handleToggle}
+                    onEdit={(d) => { setEditingDemand(d); setIsModalOpen(true); }}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                  />
+                ) : (
+                  <ProjectsPage
+                    projects={projects}
+                    onNewProject={() => { setEditingProject(null); setIsProjectModalOpen(true); }}
+                    onDelete={async (id) => {
+                      if (!confirm('Excluir projeto?')) return;
+                      if (isSupabaseReady) await supabase.from('projects').delete().eq('id', id);
+                      else setProjects(prev => prev.filter(p => p.id !== id));
+                    }}
+                    onEdit={(p) => { setEditingProject(p); setIsProjectModalOpen(true); }}
+                  />
+                )}
+              </div>
             </div>
 
-            <div className="w-[420px] flex-shrink-0 flex flex-col gap-6">
-              {/* <LiveSession channel={channelRef.current} currentUser={session.user} /> Removido conforme solicitado */}
+            <div className="w-[420px] flex-shrink-0 p-8 pl-0">
               <CalendarSidebar
                 demandsByDate={demandsByDate}
                 selectedDate={selectedDate}

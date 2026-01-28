@@ -12,10 +12,10 @@ interface ProjectsPageProps {
 
 export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNewProject, projects, onDelete, onEdit }) => {
     return (
-        <div className="max-w-6xl w-full mx-auto">
+        <div className="max-w-6xl w-full mx-auto pb-8 md:pb-0">
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-baseline gap-3">
-                    <h2 className="text-3xl font-bold text-white tracking-tight drop-shadow-md">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight drop-shadow-md">
                         Meus Projetos
                     </h2>
                     <div className="px-2 py-0.5 bg-purple-500/20 border border-purple-500/30 rounded-md backdrop-blur-md">
@@ -25,14 +25,15 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNewProject, projec
 
                 <button
                     onClick={onNewProject}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#d400f5] hover:bg-[#b500d1] text-white rounded-xl text-xs font-bold tracking-wider transition-all shadow-[0_4px_15px_rgba(212,0,245,0.4)] active:scale-95"
+                    className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-2.5 bg-[#d400f5] hover:bg-[#b500d1] text-white rounded-xl text-[10px] md:text-xs font-bold tracking-wider transition-all shadow-[0_4px_15px_rgba(212,0,245,0.4)] active:scale-95 whitespace-nowrap"
                 >
                     <Plus size={16} strokeWidth={3} />
-                    NOVO PROJETO
+                    <span className="hidden md:inline">NOVO PROJETO</span>
+                    <span className="md:hidden">NOVO</span>
                 </button>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-3">
                 {projects.length > 0 ? (
                     projects.map(project => (
                         <ProjectCard
@@ -43,7 +44,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNewProject, projec
                         />
                     ))
                 ) : (
-                    <div className="w-full py-24 flex flex-col items-center justify-center text-gray-500 gap-4 bg-black/40 border border-white/10 rounded-2xl">
+                    <div className="w-full py-16 md:py-24 flex flex-col items-center justify-center text-gray-500 gap-4 bg-black/40 border border-white/10 rounded-2xl mx-4 md:mx-0">
                         <div className="w-12 h-12 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center">
                             <ImageIcon size={20} />
                         </div>
