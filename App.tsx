@@ -309,30 +309,42 @@ const App: React.FC = () => {
             onClose={() => { setIsProjectModalOpen(false); setEditingProject(null); }}
             initialData={editingProject}
             onSubmit={async (data) => {
-              const id = editingProject?.id || crypto.randomUUID();
-              const now = new Date().toISOString();
-              const fullProject = {
-                ...data,
-                id,
-                created_by: session.user.id,
-                created_at: editingProject?.created_at || now,
-                updated_at: now
-              };
+              try {
+                const id = editingProject?.id || crypto.randomUUID();
+                const now = new Date().toISOString();
+                const fullProject = {
+                  ...data,
+                  id,
+                  created_by: session.user.id,
+                  created_at: editingProject?.created_at || now,
+                  updated_at: now
+                };
 
-              if (isSupabaseReady) {
-                if (editingProject) {
-                  await supabase.from('projects').update(data).eq('id', id);
-                } else {
-                  await supabase.from('projects').insert([fullProject]);
+                // Optimistic Update
+                setProjects(prev => {
+                  const updated = editingProject
+                    ? prev.map(p => p.id === id ? { ...p, ...data } : p)
+                    : [...prev, fullProject as Project];
+                  return updated.sort((a, b) => a.date.localeCompare(b.date));
+                });
+
+                if (isSupabaseReady) {
+                  if (editingProject) {
+                    const { error } = await supabase.from('projects').update(data).eq('id', id);
+                    if (error) throw error;
+                  } else {
+                    const { error } = await supabase.from('projects').insert([fullProject]);
+                    if (error) throw error;
+                  }
                 }
-              } else {
-                setProjects(prev => editingProject
-                  ? prev.map(p => p.id === id ? { ...p, ...data } : p)
-                  : [...prev, fullProject as Project]
-                );
+
+                setIsProjectModalOpen(false);
+                setEditingProject(null);
+              } catch (error) {
+                console.error("Erro ao salvar projeto:", error);
+                alert("Erro ao salvar projeto. Verifique o console.");
+                // Revert optimistic update could be added here if critical
               }
-              setIsProjectModalOpen(false);
-              setEditingProject(null);
             }}
           />
         )}

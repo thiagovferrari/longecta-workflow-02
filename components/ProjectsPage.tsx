@@ -32,7 +32,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNewProject, projec
                 </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="flex flex-wrap gap-3">
                 {projects.length > 0 ? (
                     projects.map(project => (
                         <ProjectCard
@@ -43,7 +43,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNewProject, projec
                         />
                     ))
                 ) : (
-                    <div className="col-span-full py-24 flex flex-col items-center justify-center text-gray-500 gap-4 bg-black/40 border border-white/10 rounded-2xl">
+                    <div className="w-full py-24 flex flex-col items-center justify-center text-gray-500 gap-4 bg-black/40 border border-white/10 rounded-2xl">
                         <div className="w-12 h-12 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center">
                             <ImageIcon size={20} />
                         </div>
@@ -61,20 +61,25 @@ const ProjectCard: React.FC<{
     onEdit: () => void;
 }> = ({ project, onDelete, onEdit }) => {
     const statusColors = {
-        active: 'bg-green-500 text-green-950 border-green-400',
-        completed: 'bg-blue-500 text-blue-950 border-blue-400',
-        prospect: 'bg-yellow-500 text-yellow-950 border-yellow-400',
+        active: 'bg-green-500',
+        completed: 'bg-blue-500',
+        prospect: 'bg-yellow-500',
     };
 
-    // Format Date for High Visibility (Day / Month)
+    // Format Date separated for styling
     const dateObj = new Date(project.date + 'T12:00:00');
-    const day = dateObj.getDate();
-    const month = dateObj.toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
+    const day = dateObj.getDate().toString().padStart(2, '0');
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const year = dateObj.getFullYear().toString().slice(-2);
 
     return (
-        <div className="group relative glass-card rounded-xl overflow-hidden hover:border-purple-500/50 transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col h-[260px] w-full">
-            {/* Imagem de Capa */}
-            <div className="h-[140px] w-full bg-gray-900 relative overflow-hidden">
+        <div
+            className="group relative flex flex-col glass-card rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(168,85,247,0.4)] cursor-pointer"
+            style={{ width: '100px', height: '140px' }}
+            onClick={onEdit}
+        >
+            {/* Full Background Image */}
+            <div className="absolute inset-0 bg-gray-900">
                 {project.image_url ? (
                     <img
                         src={project.image_url}
@@ -82,52 +87,37 @@ const ProjectCard: React.FC<{
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                 ) : (
-                    <div className="flex items-center justify-center h-full text-gray-700 bg-gray-900/50">
-                        <ImageIcon size={24} />
-                    </div>
+                    <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-black" />
                 )}
+                {/* Subtle gradient to darken bottom before the blur */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80" />
+            </div>
 
-                {/* Status Dot */}
-                <div className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${statusColors[project.status].split(' ')[0]} shadow-[0_0_8px_currentColor]`} title={project.status} />
+            {/* Status Dot */}
+            <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${statusColors[project.status] || 'bg-gray-500'} shadow-[0_0_8px_currentColor] ring-1 ring-black/30`} />
 
-                {/* Prominent Date Badge */}
-                <div className="absolute bottom-0 left-2 translate-y-1/3 glass-panel rounded-lg p-1.5 flex flex-col items-center justify-center shadow-lg z-10 w-12 group-hover:border-purple-500/50 transition-colors">
-                    <span className="text-md font-bold text-white leading-none">{day}</span>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase leading-none mt-0.5">{month}</span>
+            {/* Bottom Blur Glass Panel */}
+            <div className="absolute bottom-0 w-full backdrop-blur-md bg-white/5 border-t border-white/10 p-2 flex flex-col items-center text-center z-10">
+                {/* Date - Big & Bold */}
+                <div className="flex items-baseline gap-0.5 text-white drop-shadow-lg">
+                    <span className="text-xl font-bold tracking-tighter leading-none">{day}</span>
+                    <span className="text-lg font-light opacity-80 leading-none">/</span>
+                    <span className="text-xl font-bold tracking-tighter leading-none">{month}</span>
+                </div>
+
+                {/* Year & Title Row */}
+                <div className="mt-1 w-full flex flex-col items-center gap-1">
+                    <span className="text-[9px] font-bold text-gray-400 leading-none">{year}</span>
+                    <p className="text-xs text-white/95 font-bold truncate w-full opacity-90 group-hover:opacity-100 transition-opacity">
+                        {project.title}
+                    </p>
                 </div>
             </div>
-
-            <div className="pt-5 px-3 pb-3 flex flex-col flex-1 gap-1">
-                <h3 className="text-sm font-bold text-white leading-tight line-clamp-2" title={project.title}>
-                    {project.title}
-                </h3>
-
-                {project.website && (
-                    <a
-                        href={project.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1 mt-auto truncate"
-                    >
-                        <LinkIcon size={10} />
-                        <span className="truncate">{project.website.replace(/^https?:\/\//, '')}</span>
-                    </a>
-                )}
-            </div>
-
-            {/* Ações Hover */}
-            <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                    className="p-1.5 bg-black/60 backdrop-blur-md rounded-md text-white hover:bg-white/20 transition-colors"
-                    title="Editar"
-                >
-                    <Edit2 size={12} />
-                </button>
+            {/* Hover Actions */}
+            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <button
                     onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                    className="p-1.5 bg-black/60 backdrop-blur-md rounded-md text-red-400 hover:bg-red-500/20 transition-colors"
-                    title="Excluir"
+                    className="p-1.5 bg-black/40 backdrop-blur-md rounded-full text-white/70 hover:text-red-400 hover:bg-black/60 transition-all"
                 >
                     <Trash2 size={12} />
                 </button>
