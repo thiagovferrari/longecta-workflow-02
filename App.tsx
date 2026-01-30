@@ -211,19 +211,37 @@ const App: React.FC = () => {
     const d = demands.find(x => x.id === id);
     if (!d) return;
     const newState = d.state === 'completed' ? 'active' : 'completed';
+
+    // Optimistic Update: Update UI immediately
+    setDemands(prev => prev.map(x => x.id === id ? { ...x, state: newState } : x));
+
     if (isSupabaseReady && workspaceId && workspaceId !== 'local') {
-      await supabase.from('demands').update({ state: newState }).eq('id', id);
-    } else {
-      setDemands(prev => prev.map(x => x.id === id ? { ...x, state: newState } : x));
+      try {
+        await supabase.from('demands').update({ state: newState }).eq('id', id);
+      } catch (error) {
+        console.error("Error toggling demand:", error);
+        // Revert (optional, but good practice)
+        setDemands(prev => prev.map(x => x.id === id ? { ...x, state: d.state } : x));
+      }
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Excluir demanda?')) return;
+
+    // Optimistic Update: Remove from UI immediately
+    const previousDemands = demands;
+    setDemands(prev => prev.filter(x => x.id !== id));
+
     if (isSupabaseReady && workspaceId && workspaceId !== 'local') {
-      await supabase.from('demands').update({ state: 'deleted' }).eq('id', id);
-    } else {
-      setDemands(prev => prev.filter(x => x.id !== id));
+      try {
+        await supabase.from('demands').update({ state: 'deleted' }).eq('id', id);
+      } catch (error) {
+        console.error("Error deleting demand:", error);
+        // Revert
+        setDemands(previousDemands);
+        alert("Erro ao excluir. Tente novamente.");
+      }
     }
   };
 
@@ -279,12 +297,16 @@ const App: React.FC = () => {
                   <DemandList
                     demands={filtered}
                     viewType={activeTab}
-                    onNewDemand={() => { setEditingDemand(null); setIsModalOpen(true); }}
+                    onNewDemand={() => setEditingDemand(null)}
                     onDelete={handleDelete}
                     onComplete={handleToggle}
-                    onEdit={(d) => { setEditingDemand(d); setIsModalOpen(true); }}
+                    onEdit={(d) => setEditingDemand(d)}
                     searchTerm={searchTerm}
                     onSearchChange={setSearchTerm}
+                    editingDemand={editingDemand}
+                    onSave={handleAction}
+                    onCancelEdit={() => setEditingDemand(null)}
+                    defaultDate={selectedDate}
                   />
                 ) : (
                   <ProjectsPage
@@ -311,14 +333,7 @@ const App: React.FC = () => {
           </main>
         </div>
 
-        {isModalOpen && (
-          <NewDemandModal
-            onClose={() => { setIsModalOpen(false); setEditingDemand(null); }}
-            onSubmit={handleAction}
-            initialData={editingDemand}
-            defaultDate={selectedDate}
-          />
-        )}
+        {/* Removed NewDemandModal as it's replaced by inline form in DemandList */}
 
         {isProjectModalOpen && (
           <NewProjectModal

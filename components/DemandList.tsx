@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Demand, ViewType } from '../types';
-import { Plus, Check, Edit2, Trash2, RotateCcw, ClipboardList, Search } from 'lucide-react';
+import { Check, Edit2, Trash2, RotateCcw, ClipboardList, Search, Calendar, Save, X, Plus } from 'lucide-react';
 
 interface DemandListProps {
   demands: Demand[];
@@ -11,6 +11,10 @@ interface DemandListProps {
   onEdit: (demand: Demand) => void;
   searchTerm?: string;
   onSearchChange?: (term: string) => void;
+  editingDemand?: Demand | null;
+  onSave?: (data: { title: string; description: string; due_date: string }) => Promise<void>;
+  onCancelEdit?: () => void;
+  defaultDate?: string;
 }
 
 export const DemandList: React.FC<DemandListProps> = ({
@@ -21,8 +25,84 @@ export const DemandList: React.FC<DemandListProps> = ({
   onComplete,
   onEdit,
   searchTerm,
-  onSearchChange
+  onSearchChange,
+  editingDemand,
+  onSave,
+  onCancelEdit,
+  defaultDate
 }) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    due_date: defaultDate || new Date().toISOString().split('T')[0]
+  });
+
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const resetHeights = () => {
+    if (titleRef.current) titleRef.current.style.height = '48px';
+    if (descRef.current) descRef.current.style.height = '40px';
+  };
+
+  const autoResize = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  };
+
+  useEffect(() => {
+    if (editingDemand) {
+      setFormData({
+        title: editingDemand.title,
+        description: editingDemand.description || '',
+        due_date: editingDemand.due_date
+      });
+      requestAnimationFrame(() => {
+        autoResize(titleRef.current);
+        autoResize(descRef.current);
+      });
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        title: '',
+        description: '',
+        due_date: defaultDate || prev.due_date
+      }));
+      resetHeights();
+    }
+  }, [editingDemand, defaultDate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !onSave) return;
+
+    await onSave(formData);
+
+    if (!editingDemand) {
+      setFormData(prev => ({ ...prev, title: '', description: '' }));
+      resetHeights();
+      titleRef.current?.focus();
+    }
+  };
+
+  const handleCancel = () => {
+    if (onCancelEdit) onCancelEdit();
+    resetHeights();
+  };
+
+  const openDatePicker = () => {
+    if (dateInputRef.current) {
+      if ('showPicker' in dateInputRef.current) {
+        (dateInputRef.current as any).showPicker();
+      } else {
+        dateInputRef.current.focus();
+        dateInputRef.current.click();
+      }
+    }
+  };
+
   return (
     <div className="max-w-6xl w-full mx-auto">
       <div className="flex items-center justify-between mb-8 px-4 md:px-0">
@@ -51,23 +131,114 @@ export const DemandList: React.FC<DemandListProps> = ({
             </div>
           )}
         </div>
-
-        {viewType === 'active' && (
-          <button
-            onClick={onNewDemand}
-            className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-2.5 bg-[#00f5d4] hover:bg-[#00d1b5] text-[#020f10] rounded-xl text-[10px] md:text-xs font-bold tracking-wider transition-all shadow-[0_4px_15px_rgba(0,245,212,0.4)] active:scale-95 whitespace-nowrap"
-          >
-            <Plus size={16} strokeWidth={3} />
-            <span className="hidden md:inline">NOVA DEMANDA</span>
-            <span className="md:hidden">NOVA</span>
-          </button>
-        )}
       </div>
+
+      {viewType === 'active' && onSave && (
+        <form
+          onSubmit={handleSubmit}
+          className={`mb-10 mx-4 md:mx-0 p-4 pt-5 pb-5 rounded-3xl border transition-all duration-300 relative shadow-2xl overflow-hidden
+            ${editingDemand
+              ? 'bg-[#0a101f]/90 border-blue-500/40 shadow-[0_0_40px_rgba(59,130,246,0.15)]'
+              : 'bg-[#020f10]/60 glass-panel border-white/5 hover:border-teal-500/20'
+            }`}
+        >
+          <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-colors ${editingDemand ? 'bg-blue-500' : 'bg-[#00f5d4]'}`} />
+
+          <div className="flex flex-col md:flex-row items-start gap-4 pl-4 md:pl-5">
+            <div className={`mt-1.5 p-3 rounded-2xl shrink-0 transition-colors shadow-lg ${editingDemand ? 'bg-blue-500/10 text-blue-400 border border-blue-500/10' : 'bg-teal-500/10 text-[#00f5d4] border border-teal-500/10'}`}>
+              {editingDemand ? <Edit2 size={22} /> : <Plus size={22} strokeWidth={3} />}
+            </div>
+
+            <div className="flex-1 w-full grid grid-cols-1 gap-3">
+              <div className="relative group w-full">
+                <textarea
+                  ref={titleRef}
+                  value={formData.title}
+                  onChange={e => {
+                    setFormData({ ...formData, title: e.target.value });
+                    autoResize(e.target);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      descRef.current?.focus();
+                    }
+                  }}
+                  rows={1}
+                  placeholder={editingDemand ? "Editando título..." : "O que precisa ser feito?"}
+                  className="w-full bg-transparent border-none text-xl md:text-2xl text-white placeholder:text-gray-600 focus:outline-none resize-none overflow-hidden leading-tight font-bold min-h-[48px] py-2 px-1 rounded-lg transition-colors placeholder:font-normal"
+                />
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-4 items-start w-full">
+                <textarea
+                  ref={descRef}
+                  value={formData.description}
+                  onChange={e => {
+                    setFormData({ ...formData, description: e.target.value });
+                    autoResize(e.target);
+                  }}
+                  rows={1}
+                  placeholder="Adicionar detalhes, contexto ou observações..."
+                  className="flex-1 w-full bg-transparent border border-transparent focus:border-white/5 text-sm md:text-base text-gray-300 placeholder:text-gray-600 focus:outline-none resize-none overflow-hidden leading-relaxed min-h-[40px] py-2 px-3 rounded-xl hover:bg-white/5 focus:bg-white/5 transition-all"
+                />
+
+                <div
+                  className="relative group min-w-[150px] shrink-0"
+                  onClick={openDatePicker}
+                >
+                  <div className="flex items-center gap-3 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 group-hover:border-white/20 transition-all cursor-pointer h-full">
+                    <Calendar size={18} className={`text-gray-500 group-hover:text-white transition-colors ${editingDemand ? 'text-blue-400' : 'text-teal-400'}`} />
+                    <span className="text-sm font-medium text-gray-300 group-hover:text-white select-none">
+                      {formData.due_date ? new Date(formData.due_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'Sem data'}
+                    </span>
+                  </div>
+                  <input
+                    ref={dateInputRef}
+                    type="date"
+                    value={formData.due_date}
+                    onChange={e => setFormData({ ...formData, due_date: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 pointer-events-none"
+                    tabIndex={-1}
+                    title="Escolher data de entrega"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-row md:flex-col items-center gap-2 pt-2 md:pt-0 shrink-0">
+              <button
+                type="submit"
+                className={`h-12 px-6 md:px-0 md:w-14 rounded-2xl flex items-center justify-center transition-all shadow-lg active:scale-95 group relative
+                  ${editingDemand
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/30'
+                    : 'bg-[#00f5d4] hover:bg-[#00e0c2] text-[#020f10] shadow-teal-500/30'
+                  }`}
+                title={editingDemand ? "Salvar Alterações" : "Cadastrar Demanda"}
+              >
+                {editingDemand ? <Save size={22} /> : <Plus size={24} strokeWidth={3} className="md:group-hover:rotate-90 transition-transform" />}
+                <span className="md:hidden ml-2 font-bold text-xs tracking-wider">{editingDemand ? 'SALVAR' : 'CADASTRAR'}</span>
+              </button>
+
+              {editingDemand && (
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="h-12 w-12 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-all border border-transparent hover:border-red-500/30"
+                  title="Cancelar Edição"
+                >
+                  <X size={20} />
+                </button>
+              )}
+            </div>
+
+          </div>
+        </form>
+      )}
 
       <div className="glass-panel rounded-3xl overflow-hidden backdrop-blur-xl border border-white/5 md:border-white/10 mx-4 md:mx-0">
         {demands.length > 0 ? (
           <>
-            {/* Desktop Table View */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse table-fixed">
                 <thead className="bg-white/5 text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] border-b border-white/5">
@@ -93,7 +264,6 @@ export const DemandList: React.FC<DemandListProps> = ({
               </table>
             </div>
 
-            {/* Mobile Card View */}
             <div className="md:hidden flex flex-col divide-y divide-white/5">
               {demands.map((demand) => (
                 <MobileDemandCard
@@ -141,7 +311,7 @@ const DemandRow: React.FC<{
   const dateFormatted = new Date(demand.due_date + 'T12:00:00').toLocaleDateString('pt-BR');
 
   return (
-    <tr className="hover:bg-white/[0.05] transition-colors group">
+    <tr className="hover:bg-white/[0.05] transition-colors group relative">
       <td className="px-6 py-5">
         <div className="flex items-center gap-3">
           <div className={`w-1.5 h-1.5 rounded-full bg-current ${textColorClass}`} />
@@ -158,18 +328,43 @@ const DemandRow: React.FC<{
       <td className="px-6 py-5 text-center">
         <span className={`text-base font-mono tracking-tighter ${textColorClass}`}>{dateFormatted}</span>
       </td>
-      <td className="px-6 py-5 text-right">
+      <td className="px-6 py-5 text-right relative z-10">
         <div className="flex justify-end gap-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
           {viewType === 'active' ? (
             <>
-              <ActionButton icon={<Check size={14} />} color="text-[#00f5d4] border-[#00f5d4]/20" onClick={onComplete} title="Concluir" />
-              <ActionButton icon={<Edit2 size={14} />} color="text-blue-400 border-blue-400/20" onClick={onEdit} title="Editar" />
-              <ActionButton icon={<Trash2 size={14} />} color="text-red-500 border-red-500/20" onClick={onDelete} title="Remover" />
+              <ActionButton
+                icon={<Check size={14} />}
+                className="bg-black/60 border border-[#00f5d4]/20 text-[#00f5d4] hover:bg-[#00f5d4]/10 hover:border-[#00f5d4]/50"
+                onClick={onComplete}
+                title="Concluir"
+              />
+              <ActionButton
+                icon={<Edit2 size={14} />}
+                className="bg-black/60 border border-blue-400/20 text-blue-400 hover:bg-blue-400/10 hover:border-blue-400/50"
+                onClick={onEdit}
+                title="Editar"
+              />
+              <ActionButton
+                icon={<Trash2 size={14} />}
+                className="bg-black/60 border border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/50"
+                onClick={onDelete}
+                title="Remover"
+              />
             </>
           ) : (
             <>
-              <ActionButton icon={<RotateCcw size={14} />} color="text-teal-400 border-teal-400/20" onClick={onComplete} title="Restaurar" />
-              <ActionButton icon={<Trash2 size={14} />} color="text-red-500 border-red-500/20" onClick={onDelete} title="Excluir Definitivamente" />
+              <ActionButton
+                icon={<RotateCcw size={14} />}
+                className="bg-black/60 border border-teal-400/20 text-teal-400 hover:bg-teal-400/10 hover:border-teal-400/50"
+                onClick={onComplete}
+                title="Restaurar"
+              />
+              <ActionButton
+                icon={<Trash2 size={14} />}
+                className="bg-black/60 border border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/50"
+                onClick={onDelete}
+                title="Excluir Definitivamente"
+              />
             </>
           )}
         </div>
@@ -198,7 +393,7 @@ const MobileDemandCard: React.FC<{
   const statusColor = getUrgencyColor();
 
   return (
-    <div className="p-5 flex flex-col gap-3 active:bg-white/5 transition-colors">
+    <div className="p-5 flex flex-col gap-3 active:bg-white/5 transition-colors relative">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3 overflow-hidden">
           <div className={`w-2 h-2 shrink-0 rounded-full bg-current ${statusColor}`} />
@@ -211,26 +406,46 @@ const MobileDemandCard: React.FC<{
         {demand.description || <span className="italic opacity-50">Sem descrição</span>}
       </p>
 
-      <div className="flex items-center justify-end gap-3 mt-2 pl-5">
+      <div className="flex items-center justify-end gap-3 mt-2 pl-5 relative z-10">
         {viewType === 'active' ? (
           <>
-            <button onClick={(e) => { e.stopPropagation(); onComplete(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00f5d4]/10 text-[#00f5d4] border border-[#00f5d4]/20 text-[10px] font-bold uppercase tracking-wider">
-              <Check size={12} strokeWidth={3} /> Concluir
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onComplete(); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00f5d4]/10 text-[#00f5d4] border border-[#00f5d4]/20 text-[10px] font-bold uppercase tracking-wider active:scale-95 transition-transform"
+            >
+              <Check size={12} strokeWidth={3} className="pointer-events-none" /> Concluir
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onEdit(); }} className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              <Edit2 size={14} />
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 active:scale-95 transition-transform"
+            >
+              <Edit2 size={14} className="pointer-events-none" />
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20">
-              <Trash2 size={14} />
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="p-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 active:scale-95 transition-transform"
+            >
+              <Trash2 size={14} className="pointer-events-none" />
             </button>
           </>
         ) : (
           <>
-            <button onClick={(e) => { e.stopPropagation(); onComplete(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 text-[10px] font-bold uppercase tracking-wider">
-              <RotateCcw size={12} strokeWidth={3} /> Restaurar
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onComplete(); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 text-[10px] font-bold uppercase tracking-wider active:scale-95 transition-transform"
+            >
+              <RotateCcw size={12} strokeWidth={3} className="pointer-events-none" /> Restaurar
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20">
-              <Trash2 size={14} />
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="p-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 active:scale-95 transition-transform"
+            >
+              <Trash2 size={14} className="pointer-events-none" />
             </button>
           </>
         )}
@@ -239,15 +454,19 @@ const MobileDemandCard: React.FC<{
   );
 };
 
-const ActionButton: React.FC<{ icon: React.ReactNode, color: string, onClick: () => void, title: string }> = ({ icon, color, onClick, title }) => (
+const ActionButton: React.FC<{ icon: React.ReactNode, className: string, onClick: () => void, title: string }> = ({ icon, className, onClick, title }) => (
   <button
+    type="button"
     onClick={(e) => {
       e.stopPropagation();
       onClick();
     }}
     title={title}
-    className={`p-2 rounded-lg bg-black/60 border ${color.split(' ')[1]} ${color.split(' ')[0]} hover:bg-white/[0.1] transition-all transform active:scale-90 shadow-lg`}
+    className={`p-2 rounded-lg transition-all transform active:scale-90 shadow-lg cursor-pointer ${className}`}
   >
-    {icon}
+    {/* Wrapper para garantir que clique no ícone não interfira */}
+    <span className="pointer-events-none">
+      {icon}
+    </span>
   </button>
 );

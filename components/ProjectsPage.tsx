@@ -75,7 +75,7 @@ const ProjectCard: React.FC<{
 
     return (
         <div
-            className="group relative flex flex-col glass-card rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(168,85,247,0.4)] cursor-pointer"
+            className={`group relative flex flex-col glass-card rounded-2xl overflow-hidden border ${project.status === 'active' ? 'border-green-500' : 'border-white/10'} hover:border-purple-500/50 transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(168,85,247,0.4)] cursor-pointer`}
             style={{ width: '100px', height: '140px' }}
             onClick={onEdit}
         >
