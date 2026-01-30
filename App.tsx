@@ -288,6 +288,7 @@ const App: React.FC = () => {
         <div className="flex-1 flex flex-col min-w-0 h-dvh overflow-hidden relative">
           <Header
             onlineUsers={onlineUsers}
+            currentUser={session.user}
           />
 
           <main className="flex-1 flex overflow-hidden relative">

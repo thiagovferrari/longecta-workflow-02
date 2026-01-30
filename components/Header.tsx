@@ -3,9 +3,10 @@ import { PresenceUser } from '../types';
 
 interface HeaderProps {
   onlineUsers: PresenceUser[];
+  currentUser?: { email?: string } | null;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onlineUsers }) => {
+export const Header: React.FC<HeaderProps> = ({ onlineUsers, currentUser }) => {
   return (
     <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 backdrop-blur-xl bg-transparent z-10 shrink-0">
       <div className="flex items-center gap-3">
@@ -15,6 +16,13 @@ export const Header: React.FC<HeaderProps> = ({ onlineUsers }) => {
         <h1 className="text-xl font-light">
           <span className="font-bold text-white">Longecta</span> <span className="text-gray-500">2026</span>
         </h1>
+        {currentUser?.email && (
+          <div className="ml-2 px-2 py-0.5 bg-white/5 border border-white/5 rounded-md">
+            <span className="text-[10px] text-gray-500 font-medium">
+              {currentUser.email}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-6">
