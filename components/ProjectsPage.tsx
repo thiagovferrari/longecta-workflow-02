@@ -18,8 +18,8 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNewProject, projec
                     <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight drop-shadow-md">
                         Meus Projetos
                     </h2>
-                    <div className="px-2 py-0.5 bg-purple-500/20 border border-purple-500/30 rounded-md backdrop-blur-md">
-                        <span className="text-purple-400 text-sm font-bold">{projects.length}</span>
+                    <div className="px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-md backdrop-blur-md">
+                        <span className="text-green-400 text-sm font-bold">{projects.length}</span>
                     </div>
                 </div>
 
