@@ -42,8 +42,8 @@ export const DemandList: React.FC<DemandListProps> = ({
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   const resetHeights = () => {
-    if (titleRef.current) titleRef.current.style.height = '48px';
-    if (descRef.current) descRef.current.style.height = '40px';
+    if (titleRef.current) titleRef.current.style.height = '36px';
+    if (descRef.current) descRef.current.style.height = '36px';
   };
 
   const autoResize = (el: HTMLTextAreaElement | null) => {
@@ -59,10 +59,21 @@ export const DemandList: React.FC<DemandListProps> = ({
         description: editingDemand.description || '',
         due_date: editingDemand.due_date
       });
-      requestAnimationFrame(() => {
-        autoResize(titleRef.current);
-        autoResize(descRef.current);
-      });
+      // Aguarda o React renderizar o texto, depois redimensiona
+      setTimeout(() => {
+        if (titleRef.current) {
+          titleRef.current.style.height = 'auto';
+          titleRef.current.style.height = titleRef.current.scrollHeight + 'px';
+        }
+        if (descRef.current) {
+          descRef.current.style.height = 'auto';
+          descRef.current.style.height = descRef.current.scrollHeight + 'px';
+          // Coloca cursor no final
+          const length = descRef.current.value.length;
+          descRef.current.setSelectionRange(length, length);
+          descRef.current.focus();
+        }
+      }, 0);
     } else {
       setFormData(prev => ({
         ...prev,
@@ -136,7 +147,7 @@ export const DemandList: React.FC<DemandListProps> = ({
       {viewType === 'active' && onSave && (
         <form
           onSubmit={handleSubmit}
-          className={`mb-10 mx-4 md:mx-0 p-4 pt-5 pb-5 rounded-3xl border transition-all duration-300 relative shadow-2xl overflow-hidden
+          className={`mb-10 mx-4 md:mx-0 p-3 md:p-4 rounded-2xl border transition-all duration-300 relative shadow-xl overflow-hidden
             ${editingDemand
               ? 'bg-[#0a101f]/90 border-blue-500/40 shadow-[0_0_40px_rgba(59,130,246,0.15)]'
               : 'bg-[#020f10]/60 glass-panel border-white/5 hover:border-teal-500/20'
@@ -144,93 +155,86 @@ export const DemandList: React.FC<DemandListProps> = ({
         >
           <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-colors ${editingDemand ? 'bg-blue-500' : 'bg-[#00f5d4]'}`} />
 
-          <div className="flex flex-col md:flex-row items-start gap-4 pl-4 md:pl-5">
-            <div className={`mt-1.5 p-3 rounded-2xl shrink-0 transition-colors shadow-lg ${editingDemand ? 'bg-blue-500/10 text-blue-400 border border-blue-500/10' : 'bg-teal-500/10 text-[#00f5d4] border border-teal-500/10'}`}>
-              {editingDemand ? <Edit2 size={22} /> : <Plus size={22} strokeWidth={3} />}
+          <div className="flex flex-col md:flex-row items-center gap-3 pl-3 md:pl-4">
+            <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${editingDemand ? 'bg-blue-500/10 text-blue-400 border border-blue-500/10' : 'bg-teal-500/10 text-[#00f5d4] border border-teal-500/10'}`}>
+              {editingDemand ? <Edit2 size={18} /> : <Plus size={18} strokeWidth={3} />}
             </div>
 
-            <div className="flex-1 w-full grid grid-cols-1 gap-3">
-              <div className="relative group w-full">
-                <textarea
-                  ref={titleRef}
-                  value={formData.title}
-                  onChange={e => {
-                    setFormData({ ...formData, title: e.target.value });
-                    autoResize(e.target);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      descRef.current?.focus();
-                    }
-                  }}
-                  rows={1}
-                  placeholder={editingDemand ? "Editando título..." : "O que precisa ser feito?"}
-                  className="w-full bg-transparent border-none text-xl md:text-2xl text-white placeholder:text-gray-600 focus:outline-none resize-none overflow-hidden leading-tight font-bold min-h-[48px] py-2 px-1 rounded-lg transition-colors placeholder:font-normal"
-                />
-              </div>
+            <div className="flex-1 w-full flex flex-col md:flex-row gap-3 items-center">
+              <textarea
+                ref={titleRef}
+                value={formData.title}
+                onChange={e => {
+                  setFormData({ ...formData, title: e.target.value });
+                  autoResize(e.target);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    descRef.current?.focus();
+                  }
+                }}
+                rows={1}
+                placeholder={editingDemand ? "Editando título..." : "O que precisa ser feito?"}
+                className="w-full md:w-auto md:flex-[0_0_280px] bg-transparent border-none text-base text-white placeholder:text-gray-600 focus:outline-none resize-none overflow-hidden leading-tight font-medium min-h-[36px] py-2 px-3 rounded-lg transition-colors placeholder:font-normal"
+              />
 
-              <div className="flex flex-col md:flex-row gap-4 items-start w-full">
-                <textarea
-                  ref={descRef}
-                  value={formData.description}
-                  onChange={e => {
-                    setFormData({ ...formData, description: e.target.value });
-                    autoResize(e.target);
-                  }}
-                  rows={1}
-                  placeholder="Adicionar detalhes, contexto ou observações..."
-                  className="flex-1 w-full bg-transparent border border-transparent focus:border-white/5 text-sm md:text-base text-gray-300 placeholder:text-gray-600 focus:outline-none resize-none overflow-hidden leading-relaxed min-h-[40px] py-2 px-3 rounded-xl hover:bg-white/5 focus:bg-white/5 transition-all"
-                />
+              <textarea
+                ref={descRef}
+                value={formData.description}
+                onChange={e => {
+                  setFormData({ ...formData, description: e.target.value });
+                  autoResize(e.target);
+                }}
+                rows={1}
+                placeholder="Adicionar detalhes, contexto ou observações..."
+                className="flex-1 w-full bg-transparent border border-transparent focus:border-white/5 text-sm text-gray-300 placeholder:text-gray-600 focus:outline-none resize-none overflow-hidden leading-relaxed min-h-[36px] py-2 px-3 rounded-lg hover:bg-white/5 focus:bg-white/5 transition-all"
+              />
 
-                <div
-                  className="relative group min-w-[150px] shrink-0"
-                  onClick={openDatePicker}
-                >
-                  <div className="flex items-center gap-3 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 group-hover:border-white/20 transition-all cursor-pointer h-full">
-                    <Calendar size={18} className={`text-gray-500 group-hover:text-white transition-colors ${editingDemand ? 'text-blue-400' : 'text-teal-400'}`} />
-                    <span className="text-sm font-medium text-gray-300 group-hover:text-white select-none">
-                      {formData.due_date ? new Date(formData.due_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'Sem data'}
-                    </span>
-                  </div>
-                  <input
-                    ref={dateInputRef}
-                    type="date"
-                    value={formData.due_date}
-                    onChange={e => setFormData({ ...formData, due_date: e.target.value })}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 pointer-events-none"
-                    tabIndex={-1}
-                    title="Escolher data de entrega"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-row md:flex-col items-center gap-2 pt-2 md:pt-0 shrink-0">
-              <button
-                type="submit"
-                className={`h-12 px-6 md:px-0 md:w-14 rounded-2xl flex items-center justify-center transition-all shadow-lg active:scale-95 group relative
-                  ${editingDemand
-                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/30'
-                    : 'bg-[#00f5d4] hover:bg-[#00e0c2] text-[#020f10] shadow-teal-500/30'
-                  }`}
-                title={editingDemand ? "Salvar Alterações" : "Cadastrar Demanda"}
+              <div
+                className="relative group min-w-[140px] shrink-0"
+                onClick={openDatePicker}
               >
-                {editingDemand ? <Save size={22} /> : <Plus size={24} strokeWidth={3} className="md:group-hover:rotate-90 transition-transform" />}
-                <span className="md:hidden ml-2 font-bold text-xs tracking-wider">{editingDemand ? 'SALVAR' : 'CADASTRAR'}</span>
-              </button>
-
-              {editingDemand && (
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="h-12 w-12 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-all border border-transparent hover:border-red-500/30"
-                  title="Cancelar Edição"
-                >
-                  <X size={20} />
-                </button>
-              )}
+                <div className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 group-hover:border-white/20 transition-all cursor-pointer">
+                  <Calendar size={16} className={`text-gray-500 group-hover:text-white transition-colors ${editingDemand ? 'text-blue-400' : 'text-teal-400'}`} />
+                  <span className="text-xs font-medium text-gray-300 group-hover:text-white select-none">
+                    {formData.due_date ? new Date(formData.due_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'Sem data'}
+                  </span>
+                </div>
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={formData.due_date}
+                  onChange={e => setFormData({ ...formData, due_date: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 pointer-events-none"
+                  tabIndex={-1}
+                  title="Escolher data de entrega"
+                />
+              </div>
             </div>
+
+            <button
+              type="submit"
+              className={`h-10 w-10 md:h-11 md:w-11 rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-95 shrink-0
+                ${editingDemand
+                  ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/30'
+                  : 'bg-[#00f5d4] hover:bg-[#00e0c2] text-[#020f10] shadow-teal-500/30'
+                }`}
+              title={editingDemand ? "Salvar Alterações" : "Cadastrar Demanda"}
+            >
+              {editingDemand ? <Save size={18} /> : <Plus size={20} strokeWidth={3} />}
+            </button>
+
+            {editingDemand && (
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="h-10 w-10 md:h-11 md:w-11 flex items-center justify-center rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-all border border-transparent hover:border-red-500/30 shrink-0"
+                title="Cancelar Edição"
+              >
+                <X size={18} />
+              </button>
+            )}
 
           </div>
         </form>
