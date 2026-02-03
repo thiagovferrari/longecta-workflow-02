@@ -76,7 +76,7 @@ const ProjectCard: React.FC<{
     return (
         <div
             className={`group relative flex flex-col glass-card rounded-2xl overflow-hidden border ${project.status === 'active' ? 'border-green-500' : 'border-white/10'} hover:border-purple-500/50 transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(168,85,247,0.4)] cursor-pointer`}
-            style={{ width: '100px', height: '140px' }}
+            style={{ width: '125px', height: '160px' }}
             onClick={onEdit}
         >
             {/* Full Background Image */}
@@ -98,18 +98,18 @@ const ProjectCard: React.FC<{
             <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${statusColors[project.status] || 'bg-gray-500'} shadow-[0_0_8px_currentColor] ring-1 ring-black/30`} />
 
             {/* Bottom Blur Glass Panel */}
-            <div className="absolute bottom-0 w-full backdrop-blur-md bg-white/5 border-t border-white/10 p-2 flex flex-col items-center text-center z-10">
+            <div className="absolute bottom-0 w-full backdrop-blur-md bg-white/5 border-t border-white/10 p-3 flex flex-col items-center text-center z-10">
                 {/* Date - Big & Bold */}
                 <div className="flex items-baseline gap-0.5 text-white drop-shadow-lg">
-                    <span className="text-xl font-bold tracking-tighter leading-none">{day}</span>
-                    <span className="text-lg font-light opacity-80 leading-none">/</span>
-                    <span className="text-xl font-bold tracking-tighter leading-none">{month}</span>
+                    <span className="text-3xl font-bold tracking-tighter leading-none">{day}</span>
+                    <span className="text-2xl font-light opacity-80 leading-none">/</span>
+                    <span className="text-3xl font-bold tracking-tighter leading-none">{month}</span>
                 </div>
 
                 {/* Year & Title Row */}
-                <div className="mt-1 w-full flex flex-col items-center gap-1">
-                    <span className="text-[9px] font-bold text-gray-400 leading-none">{year}</span>
-                    <p className="text-xs text-white/95 font-bold truncate w-full opacity-90 group-hover:opacity-100 transition-opacity">
+                <div className="mt-2 w-full flex flex-col items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-gray-400 leading-none">{year}</span>
+                    <p className="text-sm text-white/95 font-bold truncate w-full opacity-90 group-hover:opacity-100 transition-opacity">
                         {project.title}
                     </p>
                 </div>
