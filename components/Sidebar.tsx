@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ClipboardList, CheckCircle2, LogOut, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { ClipboardList, CheckCircle2, LogOut, Image as ImageIcon, Instagram } from 'lucide-react';
 import { ViewType } from '../types';
 
 interface SidebarProps {
@@ -45,12 +45,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
           href="https://monitor-git-main-thiagos-projects-62baec48.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
-          title="Monitoramento"
-          className="p-3.5 rounded-2xl transition-all duration-500 relative group w-full flex justify-center text-gray-500 hover:text-white hover:bg-white/5 border border-transparent"
+          title="Instagram"
+          className="p-3.5 rounded-2xl transition-all duration-500 relative group w-full flex justify-center text-white bg-gradient-to-tr from-[#fdf497] via-[#f56040] to-[#833ab4] border border-white/20 shadow-[0_0_20px_rgba(253,244,151,0.2)] hover:scale-110 active:scale-95"
         >
-          <ExternalLink size={22} />
+          <Instagram size={22} />
           <span className="absolute left-full ml-4 px-3 py-1.5 bg-black/80 backdrop-blur-xl text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-all border border-white/10 uppercase tracking-widest font-bold translate-x-[-10px] group-hover:translate-x-0 shadow-xl">
-            Monitoramento
+            Instagram
           </span>
         </a>
       </nav>
