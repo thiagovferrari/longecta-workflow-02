@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
         />
 
         <a
-          href="https://monitor-git-main-thiagos-projects-62baec48.vercel.app/"
+          href="https://monitor-coral-five.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
           title="Instagram"
