@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ClipboardList, CheckCircle2, LogOut, Image as ImageIcon } from 'lucide-react';
+import { ClipboardList, CheckCircle2, LogOut, Image as ImageIcon, ExternalLink } from 'lucide-react';
 import { ViewType } from '../types';
 
 interface SidebarProps {
@@ -40,6 +40,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
           onClick={() => onTabChange('projects')}
           title="Projetos"
         />
+
+        <a
+          href="https://monitor-git-main-thiagos-projects-62baec48.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Monitoramento"
+          className="p-3.5 rounded-2xl transition-all duration-500 relative group w-full flex justify-center text-gray-500 hover:text-white hover:bg-white/5 border border-transparent"
+        >
+          <ExternalLink size={22} />
+          <span className="absolute left-full ml-4 px-3 py-1.5 bg-black/80 backdrop-blur-xl text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-all border border-white/10 uppercase tracking-widest font-bold translate-x-[-10px] group-hover:translate-x-0 shadow-xl">
+            Monitoramento
+          </span>
+        </a>
       </nav>
 
       <div className="mt-auto flex flex-col gap-6 items-center w-full px-4">
