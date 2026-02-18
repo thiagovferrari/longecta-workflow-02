@@ -10,6 +10,7 @@ export interface Demand {
   created_at: string;
   updated_at: string;
   completed_at?: string;
+  owner?: 'thiago' | 'kalil';
 }
 
 export interface Project {

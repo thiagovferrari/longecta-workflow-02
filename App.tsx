@@ -162,7 +162,7 @@ const App: React.FC = () => {
     setOnlineUsers([]);
   };
 
-  const handleAction = async (formData: { title: string; description: string; due_date: string }) => {
+  const handleAction = async (formData: { title: string; description: string; due_date: string; owner?: 'thiago' | 'kalil' }) => {
     const id = editingDemand?.id || crypto.randomUUID();
     const now = new Date().toISOString();
 
@@ -171,6 +171,7 @@ const App: React.FC = () => {
       title: formData.title,
       description: formData.description,
       due_date: formData.due_date,
+      owner: formData.owner,
       workspace_id: workspaceId || 'local',
       created_by: session?.user?.id || 'guest',
       state: editingDemand?.state || 'active',

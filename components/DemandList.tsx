@@ -12,7 +12,7 @@ interface DemandListProps {
   searchTerm?: string;
   onSearchChange?: (term: string) => void;
   editingDemand?: Demand | null;
-  onSave?: (data: { title: string; description: string; due_date: string }) => Promise<void>;
+  onSave?: (data: { title: string; description: string; due_date: string; owner?: 'thiago' | 'kalil' }) => Promise<void>;
   onCancelEdit?: () => void;
   defaultDate?: string;
 }
@@ -31,10 +31,16 @@ export const DemandList: React.FC<DemandListProps> = ({
   onCancelEdit,
   defaultDate
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    due_date: string;
+    owner?: 'thiago' | 'kalil';
+  }>({
     title: '',
     description: '',
-    due_date: defaultDate || new Date().toISOString().split('T')[0]
+    due_date: defaultDate || new Date().toISOString().split('T')[0],
+    owner: undefined
   });
 
   const titleRef = useRef<HTMLTextAreaElement>(null);
@@ -57,7 +63,8 @@ export const DemandList: React.FC<DemandListProps> = ({
       setFormData({
         title: editingDemand.title,
         description: editingDemand.description || '',
-        due_date: editingDemand.due_date
+        due_date: editingDemand.due_date,
+        owner: editingDemand.owner
       });
       // Aguarda o React renderizar o texto, depois redimensiona
       setTimeout(() => {
@@ -79,7 +86,8 @@ export const DemandList: React.FC<DemandListProps> = ({
         ...prev,
         title: '',
         description: '',
-        due_date: defaultDate || prev.due_date
+        due_date: defaultDate || prev.due_date,
+        owner: undefined
       }));
       resetHeights();
     }
@@ -92,7 +100,7 @@ export const DemandList: React.FC<DemandListProps> = ({
     await onSave(formData);
 
     if (!editingDemand) {
-      setFormData(prev => ({ ...prev, title: '', description: '' }));
+      setFormData(prev => ({ ...prev, title: '', description: '', owner: undefined }));
       resetHeights();
       titleRef.current?.focus();
     }
@@ -190,6 +198,34 @@ export const DemandList: React.FC<DemandListProps> = ({
                 placeholder="Adicionar detalhes, contexto ou observações..."
                 className="flex-1 w-full bg-transparent border border-transparent focus:border-white/5 text-sm text-gray-300 placeholder:text-gray-600 focus:outline-none resize-none overflow-hidden leading-relaxed min-h-[36px] py-2 px-3 rounded-lg hover:bg-white/5 focus:bg-white/5 transition-all"
               />
+
+              {/* Seletor de Owner */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {/* T = Thiago — azul claro */}
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, owner: prev.owner === 'thiago' ? undefined : 'thiago' }))}
+                  style={formData.owner === 'thiago' ? { boxShadow: '0 0 10px 2px rgba(56,189,248,0.45)' } : {}}
+                  className={`w-7 h-7 rounded-md text-[11px] font-black uppercase tracking-widest transition-all duration-150 border select-none ${formData.owner === 'thiago'
+                      ? 'bg-sky-400 border-sky-300 text-white scale-110'
+                      : 'bg-sky-400/10 border-sky-400/20 text-sky-400/50 hover:bg-sky-400/20 hover:border-sky-400/40 hover:text-sky-300 hover:scale-105'
+                    }`}
+                >
+                  T
+                </button>
+                {/* K = Kalil — azul escuro */}
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, owner: prev.owner === 'kalil' ? undefined : 'kalil' }))}
+                  style={formData.owner === 'kalil' ? { boxShadow: '0 0 10px 2px rgba(30,64,175,0.6)' } : {}}
+                  className={`w-7 h-7 rounded-md text-[11px] font-black uppercase tracking-widest transition-all duration-150 border select-none ${formData.owner === 'kalil'
+                      ? 'bg-blue-800 border-blue-600 text-blue-200 scale-110'
+                      : 'bg-blue-900/20 border-blue-800/30 text-blue-600/60 hover:bg-blue-800/30 hover:border-blue-700/50 hover:text-blue-400 hover:scale-105'
+                    }`}
+                >
+                  K
+                </button>
+              </div>
 
               <div
                 className="relative group min-w-[140px] shrink-0"
@@ -322,6 +358,14 @@ const DemandRow: React.FC<{
           <span className={`font-bold text-base truncate ${textColorClass}`}>
             {demand.title}
           </span>
+          {demand.owner && (
+            <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${demand.owner === 'thiago'
+              ? 'bg-violet-500/10 border-violet-500/30 text-violet-400'
+              : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+              }`}>
+              {demand.owner === 'thiago' ? 'T' : 'K'}
+            </span>
+          )}
         </div>
       </td>
       <td className="px-6 py-5">
@@ -402,6 +446,14 @@ const MobileDemandCard: React.FC<{
         <div className="flex items-center gap-3 overflow-hidden">
           <div className={`w-2 h-2 shrink-0 rounded-full bg-current ${statusColor}`} />
           <h3 className={`font-bold text-base truncate ${statusColor}`}>{demand.title}</h3>
+          {demand.owner && (
+            <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${demand.owner === 'thiago'
+              ? 'bg-violet-500/10 border-violet-500/30 text-violet-400'
+              : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+              }`}>
+              {demand.owner === 'thiago' ? 'T' : 'K'}
+            </span>
+          )}
         </div>
         <span className="text-[10px] font-mono tracking-tighter opacity-60 shrink-0 pt-1">{dateFormatted}</span>
       </div>
