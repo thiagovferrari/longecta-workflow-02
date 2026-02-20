@@ -75,7 +75,7 @@ const App: React.FC = () => {
           .from('workspace_members')
           .select('workspace_id')
           .limit(1)
-          .single();
+          .maybeSingle();
 
         const wId = membership?.workspace_id || 'main';
         setWorkspaceId(wId);
