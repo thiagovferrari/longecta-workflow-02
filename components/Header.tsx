@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ onlineUsers, currentUser }) => {
               title={user.email}
               className="inline-block h-8 w-8 rounded-full ring-2 ring-[#020f10] bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-[10px] font-bold text-teal-400"
             >
-              {user.email[0].toUpperCase()}
+              {user.email?.[0]?.toUpperCase() || 'U'}
             </div>
           ))}
           {onlineUsers.length > 5 && (

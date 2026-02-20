@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
           title={user?.email}
           className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 border-2 border-white/20 shadow-lg flex items-center justify-center font-bold text-white text-xs cursor-pointer hover:scale-110 transition-transform"
         >
-          {user?.email?.[0].toUpperCase()}
+          {user?.email?.[0]?.toUpperCase() || 'U'}
         </div>
       </div>
     </aside>
