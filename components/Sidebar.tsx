@@ -25,13 +25,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
           title="Demandas Ativas"
         />
 
-        <SidebarIcon
-          icon={<CheckCircle2 size={22} />}
-          active={activeTab === 'completed'}
-          onClick={() => onTabChange('completed')}
-          title="Concluídas"
-        />
-
         <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
 
         <SidebarIcon
@@ -62,7 +55,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
         </a>
       </nav>
 
-      <div className="mt-auto flex flex-col gap-6 items-center w-full px-4">
+      <div className="mt-auto flex flex-col gap-4 items-center w-full px-4">
+        <button
+          onClick={() => onTabChange('completed')}
+          title="Demandas Concluídas"
+          className={`p-2.5 rounded-2xl transition-all border border-transparent group w-full flex justify-center ${
+            activeTab === 'completed' 
+              ? 'text-cyan-400 bg-white/5 border-white/10 shadow-[0_0_15px_rgba(34,211,238,0.1)]' 
+              : 'text-gray-500 hover:text-white hover:bg-white/5 hover:border-white/10'
+          }`}
+        >
+          <CheckCircle2 size={20} />
+        </button>
+
         <button
           onClick={onLogout}
           title="Sair do Sistema"
