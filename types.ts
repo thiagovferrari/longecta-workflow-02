@@ -26,7 +26,19 @@ export interface Project {
   updated_at: string;
 }
 
-export type ViewType = 'active' | 'completed' | 'projects';
+export type ViewType = 'active' | 'completed' | 'projects' | 'crm';
+
+export interface CRMLead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  opportunity: string;
+  status: 'novo' | 'em_contato' | 'acao_necessaria' | 'aguardando_retorno' | 'convertido' | 'perdido';
+  proposal_url?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface PresenceUser {
   user_id: string;

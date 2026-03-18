@@ -8,7 +8,8 @@ import { NewDemandModal } from './components/NewDemandModal';
 import { LoginPage } from './components/LoginPage';
 import { LiveSession } from './components/LiveSession';
 import { ProjectsPage, NewProjectModal } from './components/ProjectsPage';
-import { Demand, ViewType, PresenceUser, Project } from './types';
+import { CRMPage, NewLeadModal } from './components/CRMPage';
+import { Demand, ViewType, PresenceUser, Project, CRMLead } from './types';
 import { supabase, isSupabaseReady } from './lib/supabase';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -28,6 +29,13 @@ const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+
+  const [crmLeads, setCrmLeads] = useState<CRMLead[]>(() => {
+    const saved = localStorage.getItem('longecta_crm_backup');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [editingLead, setEditingLead] = useState<CRMLead | null>(null);
+  const [isCrmModalOpen, setIsCrmModalOpen] = useState(false);
 
   const [session, setSession] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<ViewType>('active');
@@ -96,6 +104,17 @@ const App: React.FC = () => {
           .order('date', { ascending: true });
         if (projData) setProjects(projData as any);
 
+        // Load CRM Leads safely
+        try {
+          const { data: crmData } = await supabase
+            .from('crm_leads')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (crmData) setCrmLeads(crmData as any);
+        } catch (e) {
+          console.warn("CRM table might not exist yet", e);
+        }
+
         // 4. Setup Realtime Channel
         const channel = supabase.channel(`room-${wId}`, {
           config: { presence: { key: session.user.id } }
@@ -120,6 +139,16 @@ const App: React.FC = () => {
               setProjects(prev => prev.map(p => p.id === payload.new.id ? payload.new : p).sort((a, b) => a.date.localeCompare(b.date)));
             } else if (payload.eventType === 'DELETE') {
               setProjects(prev => prev.filter(p => p.id !== payload.old.id));
+            }
+          })
+          // Listen for CRM Changes
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'crm_leads' }, (payload: any) => {
+            if (payload.eventType === 'INSERT') {
+              setCrmLeads(prev => [payload.new, ...prev.filter(l => l.id !== payload.new.id)]);
+            } else if (payload.eventType === 'UPDATE') {
+              setCrmLeads(prev => prev.map(l => l.id === payload.new.id ? payload.new : l));
+            } else if (payload.eventType === 'DELETE') {
+              setCrmLeads(prev => prev.filter(l => l.id !== payload.old.id));
             }
           })
           .on('presence', { event: 'sync' }, () => {
@@ -153,6 +182,10 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(demands));
   }, [demands]);
+
+  useEffect(() => {
+    localStorage.setItem('longecta_crm_backup', JSON.stringify(crmLeads));
+  }, [crmLeads]);
 
   const handleLogout = async () => {
     if (isSupabaseReady) await supabase.auth.signOut();
@@ -295,7 +328,7 @@ const App: React.FC = () => {
           <main className="flex-1 flex overflow-hidden relative">
             <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
               <div className="max-w-7xl mx-auto w-full">
-                {activeTab !== 'projects' ? (
+                {activeTab === 'active' || activeTab === 'completed' ? (
                   <DemandList
                     demands={filtered}
                     viewType={activeTab}
@@ -310,7 +343,7 @@ const App: React.FC = () => {
                     onCancelEdit={() => setEditingDemand(null)}
                     defaultDate={selectedDate}
                   />
-                ) : (
+                ) : activeTab === 'projects' ? (
                   <ProjectsPage
                     projects={projects}
                     onNewProject={() => { setEditingProject(null); setIsProjectModalOpen(true); }}
@@ -320,6 +353,25 @@ const App: React.FC = () => {
                       else setProjects(prev => prev.filter(p => p.id !== id));
                     }}
                     onEdit={(p) => { setEditingProject(p); setIsProjectModalOpen(true); }}
+                  />
+                ) : (
+                  <CRMPage 
+                    leads={crmLeads}
+                    onNewLead={() => { setEditingLead(null); setIsCrmModalOpen(true); }}
+                    onDelete={async (id) => {
+                      if (!confirm('Excluir este lead?')) return;
+                      const prevData = crmLeads;
+                      setCrmLeads(prev => prev.filter(l => l.id !== id));
+                      if (isSupabaseReady) {
+                        try {
+                          await supabase.from('crm_leads').delete().eq('id', id);
+                        } catch (e) {
+                          console.error(e);
+                          setCrmLeads(prevData);
+                        }
+                      }
+                    }}
+                    onEdit={(l) => { setEditingLead(l); setIsCrmModalOpen(true); }}
                   />
                 )}
               </div>
@@ -377,6 +429,47 @@ const App: React.FC = () => {
                 console.error("Erro ao salvar projeto:", error);
                 alert("Erro ao salvar projeto. Verifique o console.");
                 // Revert optimistic update could be added here if critical
+              }
+            }}
+          />
+        )}
+
+        {isCrmModalOpen && (
+          <NewLeadModal
+            onClose={() => { setIsCrmModalOpen(false); setEditingLead(null); }}
+            initialData={editingLead}
+            onSubmit={async (data) => {
+              try {
+                const id = editingLead?.id || crypto.randomUUID();
+                const now = new Date().toISOString();
+                const fullLead = {
+                  ...data,
+                  id,
+                  created_at: editingLead?.created_at || now,
+                  updated_at: now
+                };
+
+                // Optimistic Update
+                setCrmLeads(prev => {
+                  const updated = editingLead
+                    ? prev.map(l => l.id === id ? { ...l, ...data, updated_at: now } : l)
+                    : [fullLead as CRMLead, ...prev];
+                  return updated;
+                });
+
+                if (isSupabaseReady) {
+                  if (editingLead) {
+                     await supabase.from('crm_leads').update(data).eq('id', id);
+                  } else {
+                     await supabase.from('crm_leads').insert([fullLead]);
+                  }
+                }
+
+                setIsCrmModalOpen(false);
+                setEditingLead(null);
+              } catch (error) {
+                console.error("Erro ao salvar lead no crm:", error);
+                alert("Erro ao salvar lead. Verifique o console.");
               }
             }}
           />

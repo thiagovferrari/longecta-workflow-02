@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ClipboardList, CheckCircle2, LogOut, Image as ImageIcon, Instagram } from 'lucide-react';
+import { ClipboardList, CheckCircle2, LogOut, Image as ImageIcon, Instagram, Users } from 'lucide-react';
 import { ViewType } from '../types';
 
 interface SidebarProps {
@@ -39,6 +39,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, 
           active={activeTab === 'projects'}
           onClick={() => onTabChange('projects')}
           title="Projetos"
+        />
+
+        <SidebarIcon
+          icon={<Users size={22} />}
+          active={activeTab === 'crm'}
+          onClick={() => onTabChange('crm')}
+          title="CRM"
         />
 
         <a
