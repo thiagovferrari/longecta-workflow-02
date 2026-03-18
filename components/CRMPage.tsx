@@ -41,8 +41,9 @@ export const CRMPage: React.FC<CRMPageProps> = ({ onNewLead, leads, onDelete, on
               <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-white/10 mb-2">
                 <div className="col-span-3">Nome & E-mail</div>
                 <div className="col-span-2">Telefone</div>
-                <div className="col-span-3">Oportunidade</div>
+                <div className="col-span-2">Oportunidade</div>
                 <div className="col-span-2">Status</div>
+                <div className="col-span-1 text-center" title="Próximo Contato">Retorno</div>
                 <div className="col-span-1 text-center">Proposta</div>
                 <div className="col-span-1 text-right">Ações</div>
               </div>
@@ -94,6 +95,20 @@ const CRMLeadRow: React.FC<{
     return status.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
+  const getContactDateColor = (dateStr?: string) => {
+    if (!dateStr) return 'text-gray-600';
+    const today = new Date().toISOString().split('T')[0];
+    if (dateStr === today) return 'text-green-400 font-bold drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]';
+    if (dateStr < today) return 'text-orange-400 font-bold drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]';
+    return 'text-white';
+  };
+
+  const formatShortDate = (dateStr?: string) => {
+    if (!dateStr) return '—';
+    const [, month, day] = dateStr.split('-');
+    return `${day}/${month}`;
+  };
+
   return (
     <div className="grid grid-cols-12 gap-4 items-center px-6 py-4 glass-panel rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-all hover:bg-white/[0.02] group">
       {/* Name & Email */}
@@ -112,7 +127,7 @@ const CRMLeadRow: React.FC<{
       </div>
 
       {/* Opportunity */}
-      <div className="col-span-3 pr-4">
+      <div className="col-span-2 pr-4">
         <p className="text-sm text-gray-400 truncate w-full" title={lead.opportunity}>
           {lead.opportunity || '—'}
         </p>
@@ -122,6 +137,13 @@ const CRMLeadRow: React.FC<{
       <div className="col-span-2 flex items-center">
         <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md border ${getStatusColor(lead.status)} text-center truncate`}>
           {getStatusLabel(lead.status)}
+        </span>
+      </div>
+
+      {/* Next Contact Date */}
+      <div className="col-span-1 flex items-center justify-center">
+        <span className={`text-xs ${getContactDateColor(lead.next_contact_date)}`} title={lead.next_contact_date ? `Entrar em contato dia ${lead.next_contact_date}` : 'Sem data agendada'}>
+          {formatShortDate(lead.next_contact_date)}
         </span>
       </div>
 
@@ -175,6 +197,7 @@ export const NewLeadModal: React.FC<NewLeadModalProps> = ({ onClose, onSubmit, i
   const [phone, setPhone] = useState(initialData?.phone || '');
   const [opportunity, setOpportunity] = useState(initialData?.opportunity || '');
   const [status, setStatus] = useState<CRMLead['status']>(initialData?.status || 'novo');
+  const [nextContactDate, setNextContactDate] = useState(initialData?.next_contact_date || '');
   const [proposalUrl, setProposalUrl] = useState(initialData?.proposal_url || '');
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState(initialData?.proposal_url ? 'Proposta anexada' : '');
@@ -235,7 +258,7 @@ export const NewLeadModal: React.FC<NewLeadModalProps> = ({ onClose, onSubmit, i
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit({ name, email, phone, opportunity, status, proposal_url: proposalUrl });
+    await onSubmit({ name, email, phone, opportunity, status, next_contact_date: nextContactDate || undefined, proposal_url: proposalUrl });
   };
 
   return (
@@ -307,21 +330,32 @@ export const NewLeadModal: React.FC<NewLeadModalProps> = ({ onClose, onSubmit, i
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-cyan-500/80 uppercase tracking-wider">Status do Funil</label>
-            <div className="relative">
-              <select
-                value={status}
-                onChange={e => setStatus(e.target.value as any)}
-                className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:bg-white/[0.05] transition-all appearance-none cursor-pointer"
-              >
-                <option value="novo" className="bg-[#0a0a09]">🆕 Novo Lead</option>
-                <option value="em_contato" className="bg-[#0a0a09]">💬 Em Contato</option>
-                <option value="acao_necessaria" className="bg-[#0a0a09]">⚡ Ação Necessária</option>
-                <option value="aguardando_retorno" className="bg-[#0a0a09]">⏳ Aguardando Retorno</option>
-                <option value="convertido" className="bg-[#0a0a09]">✅ Convertido (Fechou!)</option>
-                <option value="perdido" className="bg-[#0a0a09]">❌ Perdido</option>
-              </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-cyan-500/80 uppercase tracking-wider">Status do Funil</label>
+              <div className="relative">
+                <select
+                  value={status}
+                  onChange={e => setStatus(e.target.value as any)}
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:bg-white/[0.05] transition-all appearance-none cursor-pointer"
+                >
+                  <option value="novo" className="bg-[#0a0a09]">🆕 Novo Lead</option>
+                  <option value="em_contato" className="bg-[#0a0a09]">💬 Em Contato</option>
+                  <option value="acao_necessaria" className="bg-[#0a0a09]">⚡ Ação Necessária</option>
+                  <option value="aguardando_retorno" className="bg-[#0a0a09]">⏳ Aguardando Retorno</option>
+                  <option value="convertido" className="bg-[#0a0a09]">✅ Convertido (Fechou!)</option>
+                  <option value="perdido" className="bg-[#0a0a09]">❌ Perdido</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-cyan-500/80 uppercase tracking-wider">Próximo Contato (Opcional)</label>
+              <input
+                type="date"
+                value={nextContactDate}
+                onChange={e => setNextContactDate(e.target.value)}
+                className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:bg-white/[0.05] transition-all [color-scheme:dark]"
+              />
             </div>
           </div>
 

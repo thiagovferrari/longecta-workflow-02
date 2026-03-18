@@ -36,6 +36,7 @@ export interface CRMLead {
   opportunity: string;
   status: 'novo' | 'em_contato' | 'acao_necessaria' | 'aguardando_retorno' | 'convertido' | 'perdido';
   proposal_url?: string;
+  next_contact_date?: string;
   created_at: string;
   updated_at: string;
 }
