@@ -224,13 +224,13 @@ export const NewLeadModal: React.FC<NewLeadModalProps> = ({ onClose, onSubmit, i
         const filePath = `crm_proposals/${randName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('documents') // Usando um bucket genérico ou 'documents'
+          .from('covers')
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
-          .from('documents')
+          .from('covers')
           .getPublicUrl(filePath);
 
         setProposalUrl(publicUrl);
@@ -244,7 +244,7 @@ export const NewLeadModal: React.FC<NewLeadModalProps> = ({ onClose, onSubmit, i
       }
     } catch (error) {
       console.error('Erro no upload de PDF:', error);
-      alert('Erro ao enviar o PDF. O bucket "documents" pode não existir no Supabase. Usando mock temporário.');
+      alert('Erro ao enviar o PDF. Ocorreu uma instabilidade na conexão. Usando formato local temporário.');
       // Fallback fallback to base64 if bucket fails
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -371,16 +371,29 @@ export const NewLeadModal: React.FC<NewLeadModalProps> = ({ onClose, onSubmit, i
                 </div>
                 <input type="file" className="hidden" accept="application/pdf" onChange={handlePdfUpload} disabled={uploading} />
               </label>
-              {proposalUrl && (
-                <a 
-                  href={proposalUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white text-sm font-medium rounded-xl border border-white/10 transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
-                  <FileText size={16} /> Ver Arquivo
-                </a>
-              )}
+              {proposalUrl ? (
+                <div className="flex items-center gap-2">
+                  <a 
+                    href={proposalUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white text-sm font-medium rounded-xl border border-white/10 transition-colors flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <FileText size={16} /> Ver Arquivo
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProposalUrl('');
+                      setFileName('');
+                    }}
+                    className="p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors border border-red-500/20"
+                    title="Remover anexo"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
 
